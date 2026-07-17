@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UK Dairy CPG — Programmatic Media Intelligence Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+:root {
+  /* Danone-blue led palette */
+  --bg:       #eef3f8;
+  --bg2:      #e1ebf3;
+  --surface:  #ffffff;
+  --surface2: #f6f9fc;
+  --border:   #cdddea;
+  --border2:  #a9c4dc;
+  --text:     #0a1f33;
+  --muted:    #5b7690;
+  --dim:      #8fa8bd;
+  --butter:   #00aeef;
+  --teal:     #0066b3;
+  --teal-lt:  #d6e9f7;
+  --ink:      #003868;
+
+  --danone-blue:      #0066b3;
+  --danone-blue-dk:   #003868;
+  --danone-blue-lt:   #00aeef;
+  --danone-accent:    #6dcff6;
+
+  --audio:    #0066b3;
+  --display:  #003868;
+  --olv:      #00aeef;
+  --ctv:      #6dcff6;
+  --dooh:     #2596d1;
+  --retail:   #004f8c;
+
+  --audio-lt:   rgba(0,102,179,0.09);
+  --display-lt: rgba(0,56,104,0.08);
+  --olv-lt:     rgba(0,174,239,0.10);
+  --ctv-lt:     rgba(109,207,246,0.14);
+  --dooh-lt:    rgba(37,150,209,0.10);
+  --retail-lt:  rgba(0,79,140,0.09);
+  --youtube:    #c4000a;
+  --youtube-lt: rgba(196,0,10,0.08);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── BRAND WORDMARKS (text-based, not logos) ── */
+.brand-wordmarks{
+  display:flex;align-items:center;gap:18px;margin-bottom:28px;flex-wrap:wrap;
+}
+.wm-danone{
+  display:inline-flex;align-items:center;
+  font-family:'DM Serif Display',serif;font-style:italic;
+  font-size:1.5rem;color:#fff;
+  background:linear-gradient(135deg,#00aeef 0%,#0066b3 100%);
+  padding:6px 20px;border-radius:24px;
+  letter-spacing:0.5px;
+}
+.wm-divider{color:rgba(255,255,255,0.25);font-size:1.2rem;font-weight:300;}
+.wm-ttd{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'DM Sans',sans-serif;font-weight:700;
+  font-size:1rem;color:#fff;
+  background:rgba(255,255,255,0.08);
+  border:1.5px solid rgba(255,255,255,0.25);
+  padding:7px 18px 7px 14px;border-radius:24px;
+  letter-spacing:0.2px;
+}
+.wm-ttd-mark{
+  width:18px;height:18px;border-radius:4px;
+  background:#fff;color:#003868;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:800;font-family:'DM Sans',sans-serif;
+}
+.wm-label{font-size:10px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;margin-right:4px;}
+
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',system-ui,sans-serif;
+  font-size:14px;
+  line-height:1.65;
+}
+
+/* ── STICKY TOP NAV ── */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  background:rgba(0,56,104,0.97);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:52px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.topbar-brand{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:700;color:#fff;letter-spacing:0.3px;
+}
+.topbar-brand span{color:var(--butter);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{
+  background:none;border:none;
+  font-family:inherit;font-size:12px;font-weight:600;
+  color:rgba(255,255,255,0.5);padding:6px 14px;border-radius:4px;
+  cursor:pointer;transition:all 0.15s;letter-spacing:0.3px;
+}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,0.06);}
+.nav-link.active{color:var(--butter);background:rgba(224,184,48,0.1);}
+.topbar-meta{font-size:11px;color:rgba(255,255,255,0.3);}
+
+/* ── PAGES ── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ── HERO ── */
+.hero{
+  background:var(--ink);
+  color:#fff;
+  padding:64px 56px 52px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 100% at 95% 10%, rgba(0,174,239,0.16) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 70% at 5% 90%,  rgba(109,207,246,0.12) 0%, transparent 55%);
+}
+.hero-inner{position:relative;max-width:1200px;margin:0 auto;}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(224,184,48,0.35);
+  background:rgba(224,184,48,0.07);
+  color:var(--butter);
+  font-size:11px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;
+  padding:5px 14px;border-radius:4px;margin-bottom:22px;
+}
+.hero h1{
+  font-family:'DM Serif Display',serif;
+  font-size:3.2rem;line-height:1.08;color:#fff;
+  max-width:700px;margin-bottom:14px;
+}
+.hero h1 em{font-style:italic;color:var(--butter);}
+.hero p{color:rgba(255,255,255,0.55);max-width:520px;font-size:14px;font-weight:300;margin-bottom:32px;}
+.hero-kpis{
+  display:flex;gap:0;flex-wrap:wrap;
+  border-top:1px solid rgba(255,255,255,0.1);
+  padding-top:28px;
+}
+.hkpi{
+  flex:1;min-width:130px;
+  padding-right:32px;margin-right:0;
+  border-right:1px solid rgba(255,255,255,0.08);
+  margin-right:32px;
+}
+.hkpi:last-child{border-right:none;}
+.hkpi-v{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--butter);line-height:1;margin-bottom:5px;}
+.hkpi-l{font-size:11px;color:rgba(255,255,255,0.4);font-weight:500;text-transform:uppercase;letter-spacing:0.8px;}
+
+/* ── CONTENT WRAPPER ── */
+.wrap{max-width:1200px;margin:0 auto;padding:40px 40px 80px;}
+
+/* ── SECTION HEADING ── */
+.sh{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.sh-text{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--text);white-space:nowrap;}
+.sh-line{flex:1;height:1px;background:var(--border);}
+.sh-sub{font-size:12px;color:var(--muted);white-space:nowrap;}
+
+/* ── CATEGORY STRIP ── */
+.cat-strip{
+  background:var(--teal);color:#fff;
+  border-radius:14px;padding:26px 30px;
+  margin-bottom:36px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
+}
+.cat-v{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--butter);line-height:1;margin-bottom:5px;}
+.cat-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:rgba(255,255,255,0.55);margin-bottom:3px;}
+.cat-d{font-size:12px;color:rgba(255,255,255,0.55);line-height:1.45;}
+
+/* ── OVERVIEW TABLE ── */
+.ov-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:28px;margin-bottom:32px;
+}
+.ov-card h3{font-family:'DM Serif Display',serif;font-size:1.15rem;margin-bottom:5px;}
+.ov-card p{font-size:12px;color:var(--muted);margin-bottom:24px;max-width:680px;}
+.ov-legend{display:flex;align-items:center;gap:18px;margin-bottom:18px;font-size:11px;color:var(--muted);}
+.ov-legend-item{display:flex;align-items:center;gap:6px;}
+.ov-legend-dot{width:9px;height:9px;border-radius:50%;}
+.ov-legend-bar{width:60px;height:4px;border-radius:2px;background:linear-gradient(90deg,#0066b3 0%,#003868 100%);}
+.ov-row{
+  display:grid;grid-template-columns:110px 1fr 110px 130px;
+  align-items:center;gap:14px;
+  padding:5px 8px;border-radius:6px;cursor:pointer;
+  transition:background 0.1s;margin-bottom:10px;
+}
+.ov-row:hover{background:var(--bg2);}
+.ov-name{font-size:13px;font-weight:700;}
+.ov-track{height:34px;background:var(--bg2);border-radius:6px;overflow:hidden;}
+.ov-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:12px;font-size:11px;font-weight:700;color:rgba(255,255,255,0.9);white-space:nowrap;}
+.ov-right{text-align:right;}
+.ov-growth{font-size:13px;font-weight:700;color:var(--teal);}
+.ov-note{font-size:11px;color:var(--muted);}
+.ov-funnel{display:flex;flex-direction:column;gap:4px;}
+.ov-funnel-track{position:relative;height:5px;border-radius:3px;background:linear-gradient(90deg,#0066b3 0%,#003868 100%);}
+.ov-funnel-dot{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.25);transform:translate(-50%,-50%);}
+.ov-funnel-label{font-size:10px;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:0.5px;}
+.cite{font-size:11px;color:var(--dim);font-style:italic;margin-top:10px;}
+
+/* ── CHANNEL TABS ── */
+.ch-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px;}
+.ch-pill{
+  display:flex;align-items:center;gap:7px;
+  padding:8px 18px;border-radius:40px;cursor:pointer;
+  border:1.5px solid var(--border2);background:var(--surface);
+  font-size:13px;font-weight:600;color:var(--muted);
+  font-family:inherit;transition:all 0.15s;
+}
+.ch-pill:hover{border-color:var(--ink);color:var(--ink);}
+.ch-pill.active{color:#fff;border-color:transparent;}
+.ch-pill[data-ch=audio].active  {background:var(--audio);}
+.ch-pill[data-ch=display].active{background:var(--display);}
+.ch-pill[data-ch=olv].active    {background:var(--olv);}
+.ch-pill[data-ch=ctv].active    {background:var(--ctv);}
+.ch-pill[data-ch=dooh].active   {background:var(--dooh);}
+.ch-pill[data-ch=retail].active {background:var(--retail);}
+
+/* ── CHANNEL PANEL ── */
+.ch-panel{display:none;}
+.ch-panel.active{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.ch-full{grid-column:1/-1;}
+
+.ch-header{
+  grid-column:1/-1;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:24px 28px;
+  display:flex;align-items:flex-start;gap:16px;
+}
+.ch-icon{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.ch-t{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2;}
+.ch-s{font-size:12px;color:var(--muted);margin-top:3px;}
+.ch-kpis{display:flex;gap:24px;margin-top:14px;flex-wrap:wrap;}
+.ch-kpi-v{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1;}
+.ch-kpi-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--muted);margin-top:2px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.card h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--muted);margin-bottom:14px;}
+
+.callout{
+  border-radius:8px;padding:16px 18px;font-size:13px;line-height:1.6;
+  border-left:3px solid;margin-bottom:12px;
+}
+.callout strong{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;margin-bottom:5px;}
+
+.metric{margin-bottom:12px;}
+.metric-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.metric-name{font-size:13px;color:var(--text);font-weight:500;}
+.metric-val{font-size:13px;font-weight:700;}
+.bar-bg{background:var(--bg2);border-radius:3px;height:7px;overflow:hidden;}
+.bar{height:100%;border-radius:3px;}
+
+/* ── PLACEHOLDER ── */
+.ch-placeholder{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:70px 20px;text-align:center;color:var(--muted);
+  grid-column:1/-1;
+}
+.ch-placeholder div:first-child{font-size:38px;margin-bottom:14px;}
+.ch-placeholder h3{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--text);margin-bottom:6px;}
+
+/* ── BRAND COMPARATOR PAGE ── */
+.comp-layout{display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start;}
+.comp-sidebar{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:24px;position:sticky;top:72px;
+}
+.comp-h{font-family:'DM Serif Display',serif;font-size:1.25rem;margin-bottom:5px;}
+.comp-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.55;}
+.brand-input{
+  width:100%;background:var(--bg2);border:1.5px solid var(--border2);
+  border-radius:8px;padding:10px 14px;
+  font-size:13px;font-family:inherit;color:var(--text);outline:none;
+  transition:border-color 0.15s;margin-bottom:10px;display:block;
+}
+.brand-input:focus{border-color:var(--teal);background:#fff;}
+.brand-input::placeholder{color:var(--dim);}
+.add-btn{
+  width:100%;padding:11px;background:var(--ink);color:#fff;
+  border:none;border-radius:8px;
+  font-size:13px;font-weight:600;cursor:pointer;
+  font-family:inherit;margin-bottom:18px;transition:background 0.15s;
+}
+.add-btn:hover{background:#2d2820;}
+.qsection{margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+.qlabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--muted);margin-bottom:10px;}
+.qpills{display:flex;flex-wrap:wrap;gap:5px;}
+.qpill{
+  background:var(--bg2);border:1px solid var(--border2);
+  color:var(--muted);padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;
+  transition:all 0.14s;
+}
+.qpill:hover{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+.comp-main{display:flex;flex-direction:column;gap:20px;}
+
+/* brand card */
+.brand-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.brand-card-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+}
+.brand-card-name{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:700;}
+.bdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.btag{
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;
+  padding:2px 7px;border-radius:3px;
+}
+.brand-rm{background:none;border:none;color:var(--dim);cursor:pointer;font-size:20px;line-height:1;transition:color 0.14s;}
+.brand-rm:hover{color:var(--dooh);}
+
+.brand-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.brand-body-left{padding:18px;border-right:1px solid var(--border);}
+.brand-body-right{padding:18px;}
+
+.b-bars{display:flex;flex-direction:column;gap:9px;margin-bottom:12px;}
+.b-row{display:flex;align-items:center;gap:8px;}
+.b-lbl{font-size:11px;color:var(--muted);font-weight:500;width:54px;flex-shrink:0;}
+.b-track{flex:1;height:7px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.b-fill{height:100%;border-radius:3px;transition:width 0.5s ease;}
+.b-pct{font-size:11px;font-weight:700;width:34px;text-align:right;flex-shrink:0;}
+
+.brand-note{font-size:12px;color:var(--muted);line-height:1.55;}
+.brand-note + .brand-note{margin-top:8px;}
+.brand-retail{
+  font-size:12px;color:#16604f;line-height:1.5;
+  background:var(--teal-lt);border-radius:6px;
+  padding:10px 12px;margin-top:10px;
+}
+.brand-retail strong{display:block;font-weight:700;color:var(--teal);margin-bottom:3px;}
+
+.parent-note{font-size:11px;color:var(--dim);margin-bottom:10px;}
+.conf-badge{
+  display:inline-flex;align-items:center;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;
+  padding:2px 7px;border-radius:3px;
+}
+.conf-high{background:rgba(30,114,98,0.1);color:var(--teal);}
+.conf-med {background:rgba(176,104,32,0.1);color:var(--ctv);}
+.conf-low {background:rgba(176,40,72,0.1);color:var(--dooh);}
+
+.radar-wrap{display:flex;justify-content:center;padding:16px 0 4px;}
+.radar-note{font-size:11px;color:var(--dim);text-align:center;font-style:italic;}
+.empty-state{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:50px 20px;text-align:center;color:var(--muted);
+}
+.empty-state div:first-child{font-size:32px;margin-bottom:10px;}
+.empty-state p{font-size:13px;}
+
+/* ── SOURCES PAGE ── */
+.sources-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.source-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 22px;}
+.source-card h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.source-card ul{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.source-card li{font-size:12px;color:var(--muted);line-height:1.5;padding-left:14px;position:relative;}
+.source-card li::before{content:'—';position:absolute;left:0;color:var(--dim);}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--ink);color:#fff;
+  border-radius:8px;padding:12px 18px;font-size:13px;
+  opacity:0;transform:translateY(6px);transition:all 0.22s;
+  pointer-events:none;z-index:999;
+}
+.toast.show{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){
+  .hero{padding:40px 24px 36px;}
+  .hero h1{font-size:2.1rem;}
+  .wrap{padding:24px 16px 60px;}
+  .topbar{padding:0 20px;}
+  .nav-links{display:none;}
+  .cat-strip{grid-template-columns:1fr 1fr;}
+  .ov-row{grid-template-columns:80px 1fr 70px;}
+  .ov-funnel{display:none;}
+  .ch-panel.active{grid-template-columns:1fr;}
+  .comp-layout{grid-template-columns:1fr;}
+  .comp-sidebar{position:static;}
+  .brand-body{grid-template-columns:1fr;}
+  .brand-body-left{border-right:none;border-bottom:1px solid var(--border);}
+  .sources-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY NAV -->
+<nav class="topbar">
+  <div class="topbar-brand">🥛 <span>UK Dairy</span> Programmatic Intelligence</div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('overview')">Overview</button>
+    <button class="nav-link" onclick="showPage('channels')">Channels</button>
+    <button class="nav-link" onclick="showPage('partners')">Data Partners</button>
+    <button class="nav-link" onclick="showPage('brands')">Brand Comparator</button>
+    <button class="nav-link" onclick="showPage('sources')">Sources</button>
+  </div>
+  <div class="topbar-meta">UK · 2024–25 Data</div>
+</nav>
+
+<!-- ═══════════ PAGE: OVERVIEW ═══════════ -->
+<div class="page active" id="page-overview">
+
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="brand-wordmarks">
+        <span class="wm-label">Data &amp; partnership context</span>
+        <span class="wm-danone">danone</span>
+        <span class="wm-divider">×</span>
+        <span class="wm-ttd"><span class="wm-ttd-mark">TD</span>The Trade Desk</span>
+      </div>
+      <div class="hero-tag">📊 Category Intelligence · UK Dairy CPG</div>
+      <h1>Programmatic Media<br>in <em>UK Dairy</em></h1>
+      <p>Channel-by-channel spend intelligence, retail data activation strategy, and brand-level comparisons for the UK dairy category — sourced from IAB UK, AA/WARC, Thinkbox, The Trade Desk and trade press.</p>
+      <div class="hero-kpis">
+        <div class="hkpi"><div class="hkpi-v">£8.1bn</div><div class="hkpi-l">UK dairy retail value 2024</div></div>
+        <div class="hkpi"><div class="hkpi-v">£3.8bn</div><div class="hkpi-l">UK retail media total 2025</div></div>
+        <div class="hkpi"><div class="hkpi-v">78%</div><div class="hkpi-l">display bought programmatically</div></div>
+        <div class="hkpi"><div class="hkpi-v">+21%</div><div class="hkpi-l">CTV programmatic growth 2024</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <div class="cat-strip">
+      <div>
+        <div class="cat-l">Growth driver</div>
+        <div class="cat-v">Gut health</div>
+        <div class="cat-d">Kefir, probiotic yoghurt in double-digit volume growth. Biotiful +32.6% volumes 2024.</div>
+      </div>
+      <div>
+        <div class="cat-l">NPD priority</div>
+        <div class="cat-v">High protein</div>
+        <div class="cat-d">Arla Protein, Danone GetPRO, Müller protein range all launched 2024–25.</div>
+      </div>
+      <div>
+        <div class="cat-l">Consolidation</div>
+        <div class="cat-v">M&amp;A wave</div>
+        <div class="cat-d">Müller acquired Biotiful (£100m+); Yeo Valley acquired The Collective; Arla–DMK merger.</div>
+      </div>
+      <div>
+        <div class="cat-l">Regulatory headwind</div>
+        <div class="cat-v">HFSS Oct '25</div>
+        <div class="cat-d">Pre-9pm TV ban on flavoured yoghurts and dairy desserts — shifting spend to CTV and digital.</div>
+      </div>
+    </div>
+
+    <div class="sh"><span class="sh-text">Channel Landscape</span><span class="sh-line"></span><span class="sh-sub">Click any row to explore</span></div>
+
+    <div class="ov-card">
+      <h3>UK Dairy CPG — Estimated Programmatic Spend by Channel, 2025</h3>
+      <p>Spend modelled from IAB UK, AA/WARC, Thinkbox sector data and The Grocer Top Products 2024. Retail data is not shown here — it's an overlay layer across these channels, not a channel in its own right. See the dedicated Retail Data section below. Click any row to go to Channel Detail.</p>
+      <div class="ov-legend">
+        <div class="ov-legend-item"><div class="ov-legend-bar"></div><span>Awareness ←→ Conversion spectrum</span></div>
+        <div class="ov-legend-item"><div class="ov-legend-dot" style="background:#0066b3"></div><span>Awareness-led channel</span></div>
+        <div class="ov-legend-item"><div class="ov-legend-dot" style="background:#003868"></div><span>Conversion-led channel</span></div>
+      </div>
+      <div id="ovRows"></div>
+      <p class="cite">Sources: IAB UK Digital Adspend 2025 (MarketingWeek, March 2026); AA/WARC Expenditure Report Jan 2026; Thinkbox / Nielsen Ad Intel 2024; Radiocentre/WARC; Media Performance UK 2026; eMarketer. Dairy CPG share modelled at 12–18% of relevant channels based on Nielsen category data.</p>
+    </div>
+
+    <div class="sh"><span class="sh-text">🛒 Retail Data — The Overlay Layer</span><span class="sh-line"></span></div>
+    <div class="callout" style="background:var(--retail-lt);border-color:var(--retail);margin-bottom:24px">
+      <strong style="color:var(--retail)">Not a Channel — An Overlay</strong>
+      Retail data is not a media channel to be activated in its own right. It's a targeting and measurement layer that sits on top of Audio, Display, OLV, CTV and DOOH — telling those channels who to reach and proving whether it worked. Dairy brands sell entirely through retail with no D2C relationship of their own, which makes this overlay the single most important data asset in the category: without it, every channel above is targeting demographics and interests rather than known shoppers.
+    </div>
+
+    <div class="sh"><span class="sh-text" style="font-size:1.05rem">UK Retail Data Networks</span><span class="sh-line"></span></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px;">
+      <div class="card">
+        <h4 style="color:var(--teal)">🟡 Tesco / dunnhumby / TMI</h4>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">
+          <b style="color:var(--text)">Scale:</b> 23m+ Clubcard households; SKU-level purchase history<br><br>
+          <b style="color:var(--text)">Model:</b> Open/self-serve — CPGs distribute Clubcard audiences to their own TTD seat or agency DSP via LiveRamp (13+ destinations). Full video, in-store and app advertising.<br><br>
+          <b style="color:var(--text)">Dairy use cases:</b> Lapsed yoghurt buyer reactivation; competitive conquest (own-label switchers); probiotic category development; cheese buyer upsell; family/baby life stage<br><br>
+          <b style="color:var(--text)">Key partnerships:</b> TTD (Sept 2024); GroupM (June 2024); LiveRamp (July 2025 expansion); ITV Matchmaker via InfoSum
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="color:#6b48b8">🟣 Sainsbury's / Nectar360 Pollen</h4>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">
+          <b style="color:var(--text)">Scale:</b> 80+ pre-built shopper segments; Nectar loyalty data<br><br>
+          <b style="color:var(--text)">Model:</b> Managed + expanding self-serve. Nectar360 Pollen (June 2025) unifies in-store, online and offsite in a single planning and activation platform<br><br>
+          <b style="color:var(--text)">Dairy use cases:</b> Premium yoghurt buyer; health-conscious shopper; plant-based dairy switcher; family meal planner; high-protein shopper<br><br>
+          <b style="color:var(--text)">Proven results:</b> Clean-room partnership with Channel 4 (InfoSum) delivered avg 29% sales uplift, up to 122% peak for brands including McVitie's, Pepsi, Garnier, Weetabix
+        </div>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--olv)">🩵 Boots Media Group / Ocado</h4>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">
+          <b style="color:var(--text)">Boots Advantage Card:</b> 17m+ members with health, beauty and pharmacy purchase data. Most relevant for functional/probiotic dairy (Actimel, Biotiful, Activia) via health/wellness signals<br><br>
+          <b style="color:var(--text)">Ocado Audience Network:</b> Premium household data via LiveRamp. Relevant for premium dairy brands (Yeo Valley Organic, The Collective, Chobani) given Ocado's upmarket demographic<br><br>
+          <b style="color:var(--text)">CTV activation:</b> Both Boots (ITV Matchmaker) and Sainsbury's (C4 + Nectar360) have live broadcaster clean-room partnerships for CTV targeting of dairy shoppers
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px">
+      <div class="card">
+        <h4 style="color:var(--retail)">Key Dairy Audience Segments Available</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Regular yoghurt buyer</b>Weekly purchase; brand loyalty signal; switching intent</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Probiotic drink buyer</b>Actimel/Yakult purchasers; health-conscious shopper</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Premium cheese household</b>Cathedral City, Davidstow, Ocado premium buyers</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Plant-based dairy switcher</b>Buying Alpro/Oatly alongside dairy — trial opportunity</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Family with young children</b>Baby/toddler dairy; Petits Filous; Dairylea; Kiddylicious</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">High-protein shopper</b>Arla Protein, Danone GetPRO, Lindahls buyers</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Own-label switcher</b>Prime conquest target — previously brand buyer, now own-label</div>
+          <div style="background:var(--bg2);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--muted)"><b style="color:var(--text);display:block;margin-bottom:2px">Lapsed buyer (reactivation)</b>Bought brand 6m+ ago; high propensity to return with right message</div>
+        </div>
+        <p class="cite" style="margin-top:12px">dunnhumby Retail Media Platform; LiveRamp UK; InfoSum; Tesco Media & Insight Platform 2025</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--retail)">How the Overlay Reaches Each Channel</h4>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div style="background:var(--bg2);border-radius:6px;padding:12px 14px"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">1 — On-site sponsored products / search</div><div style="font-size:12px;color:var(--muted)">Paid placement within retailer's website/app. Most established format. Performance-based; directly measurable to purchase.</div></div>
+          <div style="background:var(--bg2);border-radius:6px;padding:12px 14px"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">2 — Overlaid on Display / OLV (off-site)</div><div style="font-size:12px;color:var(--muted)">Loyalty audiences activated across open web display and video via DSP (dunnhumby Digital Offsite, Nectar360, Criteo Max). All Wavemaker CPG campaigns exceeded benchmarks.</div></div>
+          <div style="background:var(--bg2);border-radius:6px;padding:12px 14px"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">3 — Overlaid on CTV via clean room (ITV Matchmaker / C4 + Nectar360)</div><div style="font-size:12px;color:var(--muted)">Retailer data matched to broadcaster viewer IDs via InfoSum. Target "lapsed Weetabix buyers" on ITVX; measure sales uplift post-campaign via Nectar/Clubcard baskets. Fully cookieless.</div></div>
+          <div style="background:var(--bg2);border-radius:6px;padding:12px 14px"><div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px">4 — Overlaid across any channel via open DSP (Tesco TMI + TTD / LiveRamp)</div><div style="font-size:12px;color:var(--muted)">CPGs receive Clubcard-derived audiences into their own TTD seat or agency DSP. Same audience definition applied across CTV, display, audio and DOOH simultaneously — the overlay travels with the audience, not the channel.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sh"><span class="sh-text" style="font-size:1.05rem">Proven Results — Retail Data in Dairy</span><span class="sh-line"></span></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="border-top:3px solid var(--teal)">
+        <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--teal);margin-bottom:4px">+29–122%</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">Sales uplift — Nectar360 + Channel 4</div>
+        <div style="font-size:12px;color:var(--muted)">Multi-CPG trial using Nectar shopper segments on Channel 4 streaming. Average 29% uplift across all partners; 56% for product-focused creative; 122% peak. Brands: McVitie's, Pepsi, Walkers, Garnier, Weetabix. Source: InfoSum case study.</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--display)">
+        <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--display);margin-bottom:4px">Higher conv.</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">Danone Actimel × The Trade Desk</div>
+        <div style="font-size:12px;color:var(--muted)">Danone + Wavemaker ran an A/B test on TTD comparing siloed multichannel vs connected omnichannel. Omnichannel strategy delivered higher conversion rate and lower time to purchase — now the template for Danone's global digital transformation. Source: TTD Case Study.</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--audio)">
+        <div style="font-family:'DM Serif Display',serif;font-size:2rem;color:var(--audio);margin-bottom:4px">1–2%</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">Media efficiency gain — Kellanova clean room</div>
+        <div style="font-size:12px;color:var(--muted)">Kellanova (Kellogg's) used retail data clean room technology to improve media effectiveness and efficiency. 1–2% improvement drives significant commercial bottom-line gains at their scale. Source: iProspect, June 2025.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE: CHANNELS ═══════════ -->
+<div class="page" id="page-channels">
+
+  <div class="wrap" style="padding-top:32px">
+    <div class="sh"><span class="sh-text">Channel Deep Dive</span><span class="sh-line"></span><span class="sh-sub">Select a channel below</span></div>
+    <div class="ch-pills" id="chPills"></div>
+    <div id="chPanelWrap">
+      <div class="ch-panel active" style="display:block;" id="ch-placeholder">
+        <div class="ch-placeholder">
+          <div>☝️</div>
+          <h3>Select a channel above</h3>
+          <p>Click any channel to explore dairy-specific spend data, buying mechanics and category insights.</p>
+        </div>
+      </div>
+
+      <!-- AUDIO -->
+      <div class="ch-panel" id="ch-audio">
+        <div class="ch-header">
+          <div class="ch-icon" style="background:var(--audio-lt)">🎙️</div>
+          <div style="flex:1">
+            <div class="ch-t" style="color:var(--audio)">Digital Audio</div>
+            <div class="ch-s">Streaming radio · Podcasts · Smart speakers · In-kitchen & commute moments</div>
+            <div class="ch-kpis">
+              <div><div class="ch-kpi-v" style="color:var(--audio)">£863m+</div><div class="ch-kpi-l">UK commercial audio revenue Q3 2024</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--audio)">~30%</div><div class="ch-kpi-l">Programmatic share of digital audio</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--audio)">+5.5%</div><div class="ch-kpi-l">YoY revenue growth</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--audio)">Why Audio Works for Dairy</h4>
+          <div class="callout" style="background:var(--audio-lt);border-color:var(--audio)">
+            <strong style="color:var(--audio)">Category Context</strong>
+            Dairy is fundamentally a morning and mealtime category. Audio reaches consumers during breakfast preparation, commuting and cooking — moments where dairy purchase decisions form. Probiotic and gut-health brands (Actimel, Activia, Biotiful) benefit from wellness podcast adjacency. Cheese and butter brands target cooking occasions via food/recipe podcasts on Spotify and BBC Sounds. Dynamic audio creative adapts messaging by time of day.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Commercial radio weekly reach (UK)</span><span class="metric-val" style="color:var(--audio)">40m listeners</span></div><div class="bar-bg"><div class="bar" style="width:80%;background:var(--audio)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">UK adults listening to connected audio weekly</span><span class="metric-val" style="color:var(--audio)">44%</span></div><div class="bar-bg"><div class="bar" style="width:44%;background:var(--audio)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Typical dairy audio budget share of prog. mix</span><span class="metric-val" style="color:var(--audio)">5–12%</span></div><div class="bar-bg"><div class="bar" style="width:9%;background:var(--audio)"></div></div></div>
+          <p class="cite">Radiocentre/WARC Speed of Sound 2024; eMarketer Programmatic Audio 2025; IAB UK; AdTonos UK Audio 2025</p>
+        </div>
+        <div class="card">
+          <h4>Buying Mechanics</h4>
+          <div class="callout" style="background:var(--audio-lt);border-color:var(--audio)">
+            <strong style="color:var(--audio)">How It's Bought</strong>
+            Programmatic audio via DSPs (TTD, DV360) across Spotify Audience Network, AdsWizz, TritonDigital, Global/Bauer IP radio. PMPs dominate premium podcast inventory. Dynamic creative adapts by time of day, context and audience segment. HFSS restrictions do not currently extend to audio — an advantage for flavoured dairy drinks brands.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">UK podcast ad spend 2024</span><span class="metric-val" style="color:var(--audio)">£90m (+8%)</span></div><div class="bar-bg"><div class="bar" style="width:35%;background:var(--audio)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Programmatic vs direct split (audio)</span><span class="metric-val" style="color:var(--audio)">30% / 70%</span></div><div class="bar-bg"><div class="bar" style="width:30%;background:var(--audio)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- DISPLAY -->
+      <div class="ch-panel" id="ch-display">
+        <div class="ch-header">
+          <div class="ch-icon" style="background:var(--display-lt)">🖥️</div>
+          <div style="flex:1">
+            <div class="ch-t" style="color:var(--display)">Programmatic Display</div>
+            <div class="ch-s">Open web · Banner · Native · Rich media · PMPs · Programmatic Guaranteed</div>
+            <div class="ch-kpis">
+              <div><div class="ch-kpi-v" style="color:var(--display)">78%</div><div class="ch-kpi-l">of all UK digital display is programmatic</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--display)">+18.9%</div><div class="ch-kpi-l">UK online display growth 2024</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--display)">+66%</div><div class="ch-kpi-l">CPG contextual/retail data adoption H1 2024</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--display)">Display in Dairy CPG</h4>
+          <div class="callout" style="background:var(--display-lt);border-color:var(--display)">
+            <strong style="color:var(--display)">Primary Workhorse Channel</strong>
+            Display is the largest single programmatic channel for most UK dairy brands. Primary uses: lapsed buyer reactivation (households who switched from Müller Corner to own-label); competitive conquest (Ariel vs Bold; Danone vs Yoplait); retailer loyalty data activation via dunnhumby Digital Offsite or LiveRamp; recipe and food content adjacency. Danone's Actimel TTD case study showed omnichannel display+video outperforms siloed buying.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Typical dairy display share of prog. mix</span><span class="metric-val" style="color:var(--display)">30–40%</span></div><div class="bar-bg"><div class="bar" style="width:35%;background:var(--display)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">PMP / Programmatic Guaranteed share</span><span class="metric-val" style="color:var(--display)">~60%</span></div><div class="bar-bg"><div class="bar" style="width:60%;background:var(--display)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Open market share of programmatic display</span><span class="metric-val" style="color:var(--display)">~40%</span></div><div class="bar-bg"><div class="bar" style="width:40%;background:var(--display)"></div></div></div>
+          <p class="cite">IAB UK; Proximic by Comscore H1 2024; TTD Case Study: Danone Actimel</p>
+        </div>
+        <div class="card">
+          <h4>Buying Mechanics</h4>
+          <div class="callout" style="background:var(--display-lt);border-color:var(--display)">
+            <strong style="color:var(--display)">Key Platforms & Activation</strong>
+            DSPs: The Trade Desk, DV360, Amazon DSP, Xandr. SSPs: Index Exchange, Magnite, PubMatic. Retail data ingested via clean rooms (InfoSum, Habu) or LiveRamp, matched to UID2 tokens for cookieless targeting. CDP replacing DMP across major dairy manufacturers (Danone, Arla, Müller now operating CDPs).
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Danone Actimel A/B test result (TTD platform)</span><span class="metric-val" style="color:var(--display)">Higher conv. + faster purchase</span></div><div class="bar-bg"><div class="bar" style="width:100%;background:var(--display)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- OLV -->
+      <div class="ch-panel" id="ch-olv">
+        <div class="ch-header">
+          <div class="ch-icon" style="background:var(--olv-lt)">📹</div>
+          <div style="flex:1">
+            <div class="ch-t" style="color:var(--olv)">Online Video (OLV)</div>
+            <div class="ch-s">YouTube · Pre/mid-roll · Outstream · Publisher video · BVOD catch-up · Social video</div>
+            <div class="ch-kpis">
+              <div><div class="ch-kpi-v" style="color:var(--olv)">£9.3bn</div><div class="ch-kpi-l">UK video spend 2025 (23% of digital)</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--olv)">+13%</div><div class="ch-kpi-l">CPG digital video growth 2025 (IAB)</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--olv)">59%</div><div class="ch-kpi-l">of social spend is video</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--olv)">OLV in UK Dairy</h4>
+          <div class="callout" style="background:var(--olv-lt);border-color:var(--olv)">
+            <strong style="color:var(--olv)">Brand Storytelling at Scale</strong>
+            OLV is the primary emotional storytelling vehicle for dairy brands, spanning YouTube and the open web together. Within YouTube: 6-second bumper ads for yoghurt/butter brand recall, 15–30 second skippable pre-roll for Activia gut health education, and long-form recipe/how-to content — bought via Google DV360, sitting within Google's walled garden, and typically the single largest destination within a dairy brand's OLV budget. Beyond YouTube: programmatic outstream on publisher sites (BBC Good Food, Olive, Delicious, Mumsnet); BVOD catch-up pre-roll on ITV X and Channel 4 Streaming; and short-form social video on Instagram Reels and TikTok — particularly important for challengers like Biotiful, Oatly and Yeo Valley with limited TV budgets.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Typical dairy OLV share of prog. mix</span><span class="metric-val" style="color:var(--olv)">20–30%</span></div><div class="bar-bg"><div class="bar" style="width:25%;background:var(--olv)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">UK digital video display H1 2025 (annualised)</span><span class="metric-val" style="color:var(--olv)">£4.3bn</span></div><div class="bar-bg"><div class="bar" style="width:70%;background:var(--olv)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Video growth 2024</span><span class="metric-val" style="color:var(--olv)">+16%</span></div><div class="bar-bg"><div class="bar" style="width:53%;background:var(--olv)"></div></div></div>
+          <p class="cite">IAB Digital Video Ad Spend Report 2025; IAB UK; MEERKATworks 2026</p>
+        </div>
+        <div class="card">
+          <h4>Buying Mechanics</h4>
+          <div class="callout" style="background:var(--olv-lt);border-color:var(--olv)">
+            <strong style="color:var(--olv)">Key Platforms & KPIs</strong>
+            YouTube via DV360; open web video via TTD, Amazon DSP. BVOD (ITV X, Channel 4 Streaming) bought direct or programmatically. Brand Lift studies (Nielsen, DV360, Meta) are standard for dairy awareness campaigns. Viewability and video completion rate are primary KPIs — completion rates of 70%+ expected for dairy creative.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">IAB forecast: video share of UK digital by 2027</span><span class="metric-val" style="color:var(--olv)">27%</span></div><div class="bar-bg"><div class="bar" style="width:27%;background:var(--olv)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- CTV -->
+      <div class="ch-panel" id="ch-ctv">
+        <div class="ch-header">
+          <div class="ch-icon" style="background:var(--ctv-lt)">📺</div>
+          <div style="flex:1">
+            <div class="ch-t" style="color:var(--ctv)">Connected TV (CTV)</div>
+            <div class="ch-s">Netflix · Prime Video · Disney+ · ITV X · Channel 4 Streaming · FAST</div>
+            <div class="ch-kpis">
+              <div><div class="ch-kpi-v" style="color:var(--ctv)">75%</div><div class="ch-kpi-l">of CTV buys are programmatic (IAB 2024)</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--ctv)">+20.7%</div><div class="ch-kpi-l">Programmatic CTV growth UK 2024</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--ctv)">92–97%</div><div class="ch-kpi-l">CTV video completion rate</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--ctv)">CTV — Strategic Priority for Dairy</h4>
+          <div class="callout" style="background:var(--ctv-lt);border-color:var(--ctv)">
+            <strong style="color:var(--ctv)">Two Reasons CTV Matters Most for Dairy Right Now</strong>
+            <b>1. HFSS compliance:</b> Flavoured yoghurts and dairy desserts restricted pre-9pm on linear TV from October 2025. CTV's post-watershed streaming audiences on BVOD/Netflix/Prime are the natural replacement — same household reach, no restriction.<br><br>
+            <b>2. Retailer data targeting:</b> ITV Matchmaker (InfoSum) and Channel 4 + Nectar360 specifically enable dairy brands to activate Tesco Clubcard and Sainsbury's Nectar audiences on CTV inventory. Danone and PepsiCo brands confirmed in trials.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">CTV vs OLV completion rate</span><span class="metric-val" style="color:var(--ctv)">92–97% vs ~60%</span></div><div class="bar-bg"><div class="bar" style="width:95%;background:var(--ctv)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Typical dairy CTV share of prog. mix</span><span class="metric-val" style="color:var(--ctv)">15–25%</span></div><div class="bar-bg"><div class="bar" style="width:20%;background:var(--ctv)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">AVOD/SVOD/FAST UK 2024 (Netflix, Prime, Disney+)</span><span class="metric-val" style="color:var(--ctv)">£236m (+146%)</span></div><div class="bar-bg"><div class="bar" style="width:30%;background:var(--ctv)"></div></div></div>
+          <p class="cite">IAB Video Ad Spend Report 2025; ITV Matchmaker case; Thinkbox; MediaCat UK April 2025</p>
+        </div>
+        <div class="card">
+          <h4>Buying Mechanics</h4>
+          <div class="callout" style="background:var(--ctv-lt);border-color:var(--ctv)">
+            <strong style="color:var(--ctv)">Platforms & Retail Data Integration</strong>
+            Key DSPs: The Trade Desk (market leader for independent CTV), DV360, Amazon DSP. UK inventory: ITV X, Channel 4 Streaming (BVOD programmatic); Netflix via Microsoft/TTD; Prime Video via Amazon DSP; FAST (Pluto TV, Samsung TV+). Retail data activation via ITV Matchmaker (InfoSum) for Tesco/Boots audiences; C4 + Nectar360 for Sainsbury's audiences. Measurement via BARB Digital, household graphs, ACR data.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">CPG marketers planning CTV budget increase H2 2025</span><span class="metric-val" style="color:var(--ctv)">55%</span></div><div class="bar-bg"><div class="bar" style="width:55%;background:var(--ctv)"></div></div></div>
+        </div>
+      </div>
+
+      <!-- DOOH -->
+      <div class="ch-panel" id="ch-dooh">
+        <div class="ch-header">
+          <div class="ch-icon" style="background:var(--dooh-lt)">🏙️</div>
+          <div style="flex:1">
+            <div class="ch-t" style="color:var(--dooh)">Digital Out-of-Home (DOOH)</div>
+            <div class="ch-s">Roadside · Retail proximity · Transport · Forecourts · pDOOH</div>
+            <div class="ch-kpis">
+              <div><div class="ch-kpi-v" style="color:var(--dooh)">£1.44bn</div><div class="ch-kpi-l">UK OOH 2025 — record high</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--dooh)">67%</div><div class="ch-kpi-l">of OOH revenue is digital</div></div>
+              <div><div class="ch-kpi-v" style="color:var(--dooh)">£1.60</div><div class="ch-kpi-l">OOH ROI per £1 spent (Route)</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 style="color:var(--dooh)">DOOH in UK Dairy</h4>
+          <div class="callout" style="background:var(--dooh-lt);border-color:var(--dooh)">
+            <strong style="color:var(--dooh)">Grocery Proximity & Shopping Missions</strong>
+            DOOH is powerful for dairy near grocery shopping missions. Screens near Tesco, Sainsbury's, Asda and Waitrose car parks, fuel forecourts and high streets intercept shoppers before the purchase decision. Dynamic creative responds to: weather (warm day = chilled yoghurt drink; cold = hot chocolate/dairy comfort); time of day (morning rush = breakfast occasion); proximity to stockist. Arla, Müller, Danone all use DOOH for big-format brand campaigns. Lurpak is historically a heavy OOH investor. Challenger brands use pDOOH for cost-efficient reach in key urban markets.
+          </div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">OOH ad recall within 1 month</span><span class="metric-val" style="color:var(--dooh)">79%</span></div><div class="bar-bg"><div class="bar" style="width:79%;background:var(--dooh)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">pDOOH current share of OOH</span><span class="metric-val" style="color:var(--dooh)">5% → 16% by 2027</span></div><div class="bar-bg"><div class="bar" style="width:5%;background:var(--dooh)"></div></div></div>
+          <div class="metric"><div class="metric-row"><span class="metric-name">Typical dairy DOOH share of prog. mix</span><span class="metric-val" style="color:var(--dooh)">5–15%</span></div><div class="bar-bg"><div class="bar" style="width:10%;background:var(--dooh)"></div></div></div>
+          <p class="cite">Route/PwC 2025; Media Performance UK 2026; AA/WARC</p>
+        </div>
+        <div class="card">
+          <h4>Buying Mechanics</h4>
+          <div class="callout" style="background:var(--dooh-lt);border-color:var(--dooh)"><strong style="color:var(--dooh)">Platforms & Targeting</strong>pDOOH via The Trade Desk, Hivestack, Vistar Media, Broadsign Reach. Inventory from Clear Channel, JCDecaux, Ocean Outdoor, JCD. Targeting: location data, weather triggers, time of day, retail proximity. Measurement: footfall uplift studies, brand recall panels, sales correlation via retailer data clean rooms.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE: BRAND COMPARATOR ═══════════ -->
+<div class="page" id="page-brands">
+  <div class="wrap" style="padding-top:32px">
+    <div class="sh"><span class="sh-text">Brand Comparator</span><span class="sh-line"></span><span class="sh-sub">Pre-profiled UK dairy brands — select from quick-add or type any name</span></div>
+    <div class="comp-layout">
+
+      <div class="comp-main" id="brandMain">
+        <div class="empty-state" id="emptyState">
+          <div>🥛</div>
+          <p>Add brands from the panel to compare their estimated programmatic channel mix and retail data strategy</p>
+        </div>
+        <div id="radarCard" style="display:none">
+          <div class="card">
+            <h4>Channel Mix — Radar Comparison</h4>
+            <div class="radar-wrap"><canvas id="radarCanvas" width="340" height="300"></canvas></div>
+            <div id="radarLegend" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:8px"></div>
+            <p class="radar-note">Axes scaled to max 45% per channel. Larger area = more concentrated in those channels.</p>
+          </div>
+        </div>
+        <div id="brandCards"></div>
+      </div>
+
+      <div class="comp-sidebar">
+        <div class="comp-h">Add a Brand</div>
+        <div class="comp-sub">Type any dairy brand name. Pre-profiled brands get detailed analysis; unknown brands get a category-inference estimate.</div>
+        <input class="brand-input" id="brandInput" type="text" placeholder="e.g. Danone, Biotiful, Arla, Müller…" autocomplete="off" />
+        <button class="add-btn" onclick="addBrand()">+ Add Brand</button>
+        <div class="qsection">
+          <div class="qlabel">Quick Add — UK Dairy Brands</div>
+          <div class="qpills" id="qpills"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE: DATA PARTNERS ═══════════ -->
+<div class="page" id="page-partners">
+  <div class="wrap" style="padding-top:32px">
+    <div class="sh"><span class="sh-text">Data Partner Intelligence</span><span class="sh-line"></span><span class="sh-sub">TTD · Experian · NIQ · YouGov</span></div>
+    <p style="font-size:13px;color:var(--muted);max-width:760px;margin-bottom:28px">Findings published directly by The Trade Desk, Experian, NIQ (NielsenIQ) and YouGov — covering platform-level omnichannel research, identity resolution capability, UK dairy retail panel data, and brand health tracking. Every figure below is attributed to its specific publishing organisation and methodology; none of it is modelled or inferred.</p>
+
+    <!-- THE TRADE DESK -->
+    <div class="sh"><span class="sh-text" style="font-size:1.1rem">📺 The Trade Desk — Platform Research</span><span class="sh-line"></span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="border-top:3px solid var(--display)">
+        <h4 style="color:var(--display)">CPG Path to Purchase Study</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">TTD Intelligence and PA Consulting's joint research (US, UK, Canada — Nov 2024, updated April 2025) found that creative emphasising brand trust, credibility and quality outperformed pure cost messaging across CPG verticals — including among shoppers who initially named price as their top priority. Even cost-aware shoppers were more likely to search for deals on favourite brands before switching to a cheaper alternative.</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6">The research identifies three purchase journey stages — <b style="color:var(--text)">Trigger, Consideration, Purchase</b> — and found social platforms play a strong early role, but their influence peaks later during consideration, when shoppers are actively researching and comparing.</p>
+        <p class="cite">Source: The Trade Desk Intelligence and PA Consulting, "CPG Path to Purchase," U.S., U.K., Canada, Nov. 2024 / April 2025</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--ctv)">
+        <h4 style="color:var(--ctv)">Omnichannel Performance Benchmarks</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">TTD's "Untapped Opportunity of Omnichannel" study found connected omnichannel campaigns — three or more channels coordinated around a single audience — were measurably more effective than siloed single-channel buying:</p>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          <div style="flex:1;text-align:center;background:var(--bg2);border-radius:6px;padding:10px"><div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--ctv)">1.5×</div><div style="font-size:10px;color:var(--muted)">more immersive</div></div>
+          <div style="flex:1;text-align:center;background:var(--bg2);border-radius:6px;padding:10px"><div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--ctv)">1.9×</div><div style="font-size:10px;color:var(--muted)">more likely to connect</div></div>
+          <div style="flex:1;text-align:center;background:var(--bg2);border-radius:6px;padding:10px"><div style="font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--ctv)">2.2×</div><div style="font-size:10px;color:var(--muted)">less cognitive fatigue</div></div>
+        </div>
+        <p class="cite">Source: The Trade Desk Intelligence x PA Consulting, "The Untapped Opportunity of Omnichannel," Oct. 2024 — US, UK</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="border-top:3px solid var(--retail)">
+        <h4 style="color:var(--retail)">UK HFSS Regulation — TTD's Direct Guidance</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">TTD's own published guidance on the UK's Less Healthy Food (LHF) regulations states that the rules limit how many HFSS products can appear in digital advertising — explicitly naming digital audio and DOOH as having become "foundational for food and beverage advertisers" as a result.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Per TTD: digital audio builds familiarity and frequency reaching consumers "during workouts, commutes, chores, and daily routines," while DOOH "delivers immediate visibility in moments that are close to the point of sale" — language TTD uses specifically to justify reallocating dairy and food budgets toward these two channels under HFSS pressure.</p>
+        <p class="cite">Source: The Trade Desk, "Omnichannel is powering new U.K. food regulations" (thetradedesk.com)</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--olv)">
+        <h4 style="color:var(--olv)">Retail Data — Platform Capability</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">TTD's own retail data documentation states that brands with limited first-party data — explicitly naming CPGs — are turning to retail data to "enhance and future-proof their targeting strategies" as third-party data becomes scarce. TTD's platform provides retail sales reports and standardised attribution giving "a holistic view of online and in-store sales across many of the world's biggest retailers."</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">TTD explicitly contrasts this with retail media networks (RMNs) and Amazon DSP, noting RMN activations "typically have to happen in silos" tied to lower-funnel shopper marketing, while Amazon DSP "primarily reaches people who shop online" — a limitation for dairy given most purchases remain in-store.</p>
+        <p class="cite">Source: The Trade Desk, "Reach the right audience with retail data" (thetradedesk.com)</p>
+      </div>
+    </div>
+
+    <!-- EXPERIAN -->
+    <div class="sh" style="margin-top:8px"><span class="sh-text" style="font-size:1.1rem">🔑 Experian — Identity & Audience Data</span><span class="sh-line"></span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="border-top:3px solid #1a5fad">
+        <h4 style="color:#1a5fad">Digital Graph + Marketing Attributes</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">Experian's Digital Graph connects digital identifiers to people and households; Marketing Attributes adds demographic, interest, shopping behaviour and media preference data on top. Together they support identity resolution, cross-channel activation, analytics and measurement — positioned as the connective layer between fragmented digital signals.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Experian's identity graph is built on <b style="color:var(--text)">verified offline data spanning 126 million US households, 250 million individuals, and over 4 billion active digital identifiers</b> — the scale that underpins match rates for CPG audience activation across CTV, mobile and display.</p>
+        <p class="cite">Source: Experian, "Announcing Digital Graph and Marketing Attributes" (Sept 2024); Experian Data Marketplace launch (Jan 2025)</p>
+      </div>
+      <div class="card" style="border-top:3px solid #1a5fad">
+        <h4 style="color:#1a5fad">CPG-Specific Audience Segments</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">Experian's syndicated audience library includes over 2,400 pre-built segments, directly naming CPG category-level targeting such as "Frozen Food Shoppers" and category purchase-behaviour cohorts. These activate directly on 30+ TV, social and programmatic destinations including FreeWheel, Magnite and Madhive.</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Experian's Partner Audiences layer sources CPG-specific segments directly from third-party providers including <b style="color:var(--text)">Circana</b> (purchase-based CPG data) and Dun & Bradstreet, curated specifically across the CPG, Retail and Health verticals.</p>
+        <p class="cite">Source: Experian Marketing Forward Blog, "Marketing data and identity" series (Aug 2025 release notes); Experian Data Marketplace (Jan 2025)</p>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:24px;border-top:3px solid #1a5fad">
+      <h4 style="color:#1a5fad">Retail Media Network Identity Solution</h4>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">Experian launched a dedicated solution for retail media networks to improve identity resolution, ad targeting and attribution as RMNs increasingly extend into offsite media. The solution pairs Experian's identity graph (connecting addressable IDs to customers) with a third-party onboarding product to improve reach, plus an "Activity Feed" product that measures whether ad exposure drove a subsequent purchase online or in-store — directly relevant to UK dairy brands activating Tesco, Sainsbury's or Boots data offsite.</p>
+      <p class="cite">Source: Marketing Dive, "Experian launches retail media solution for networks seeking richer data" (exclusive reporting on Experian product launch)</p>
+    </div>
+
+    <!-- NIQ -->
+    <div class="sh"><span class="sh-text" style="font-size:1.1rem">📦 NIQ (NielsenIQ) — UK Dairy Retail Panel</span><span class="sh-line"></span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="card" style="border-top:3px solid var(--retail)">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--retail)">+£200m</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin:4px 0 6px">Yoghurt spend growth, FY to March 2025</div>
+        <div style="font-size:12px;color:var(--muted)">Milk spend fell £100m over the same period — NIQ Panel on Demand. Butter, fresh cream and cheese spend was flat year-on-year.</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--retail)">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--retail)">~70%</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin:4px 0 6px">Biotiful's UK kefir market share</div>
+        <div style="font-size:12px;color:var(--muted)">Cited via NIQ-sourced trade reporting as the dominant player in a category Danone has now entered via an Activia kefir line — direct competitive context for the Biotiful brand profile.</div>
+      </div>
+      <div class="card" style="border-top:3px solid var(--retail)">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--retail)">+19.6m L</div>
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin:4px 0 6px">Extra litres — Cravendale, Lactofree, Arla &amp; Yeo Valley combined</div>
+        <div style="font-size:12px;color:var(--muted)">NIQ-sourced volume data showing Arla's branded milk portfolio gained share even as the total milk category declined in 2024.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="border-top:3px solid var(--retail)">
+        <h4 style="color:var(--retail)">Latest Quarterly Movement (Q4 2025)</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">NIQ Homescan POD data for the 12 weeks ending 27 December 2025 shows cows' dairy volumes down 0.2% YoY, but spend up 7.2%, driven by a 7.5% increase in average prices paid. Cheese remained in volume growth (+1.9%), with cheddar — 44.8% of all cow cheese volume — up 1.3%. Cream spend rose 9.7% YoY, driven by strong Christmas performance in clotted (+12.2%) and aerosol (+3.0%) variants.</p>
+        <p class="cite">Source: NIQ Homescan POD / NIQ Panel on Demand, via AHDB Q4 2025 Dairy Market Review</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--retail)">
+        <h4 style="color:var(--retail)">Private Label vs Branded Growth (Global Outlook 2025)</h4>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">NIQ's global survey (17,000+ consumers, Dec 2024–Jan 2025) found 53% of respondents are increasingly buying more private label — but in the UK specifically, <b style="color:var(--text)">three retailers drove over 70% of private label growth and over 86% of branded product growth in 2024</b>, showing retailer reputation lifts both private label and brand sales together rather than purely cannibalising branded share.</p>
+        <p class="cite">Source: NIQ, "Private Label & Brand Growth – NIQ Global Outlook 2025"</p>
+      </div>
+    </div>
+
+    <!-- YOUGOV -->
+    <div class="sh"><span class="sh-text" style="font-size:1.1rem">💬 YouGov — Brand Health Tracking</span><span class="sh-line"></span></div>
+    <div class="card" style="margin-bottom:16px;border-top:3px solid #7c5cbf">
+      <h4 style="color:#7c5cbf">YouGov BrandIndex Methodology</h4>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">YouGov BrandIndex is an always-on brand health tracker drawing on over 27 million registered panel members across 40+ sectors and 55+ countries. The Index score is a composite of six metrics: <b style="color:var(--text)">Impression, Quality, Value, Satisfaction, Recommend, and Reputation</b>. For a brand to qualify for ranking reports, it needs at least 183 days of tracked data; for most-improved rankings, 548 days.</p>
+      <p class="cite">Source: YouGov, "Best Global Brands 2025" methodology notes; YouGov BrandIndex platform documentation</p>
+    </div>
+    <div class="card" style="margin-bottom:16px;border-top:3px solid #7c5cbf">
+      <h4 style="color:#7c5cbf">Lurpak — Published YouGov Index Scores (Arla Portfolio)</h4>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px">YouGov's published "Best Global Brands 2025" market deep-dive includes full BrandIndex component scores for Lurpak and Arla in a tracked market, illustrating exactly how granular the BrandIndex data gets for individual Arla-portfolio dairy brands:</p>
+      <table class="data-table" style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
+        <tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px;color:var(--muted);font-weight:700">Brand</th><th style="padding:6px;color:var(--muted);font-weight:700">Impression</th><th style="padding:6px;color:var(--muted);font-weight:700">Quality</th><th style="padding:6px;color:var(--muted);font-weight:700">Value</th><th style="padding:6px;color:var(--muted);font-weight:700">Reputation</th><th style="padding:6px;color:var(--muted);font-weight:700">Satisfaction</th><th style="padding:6px;color:var(--muted);font-weight:700">Recommend</th><th style="padding:6px;color:var(--muted);font-weight:700">Index</th></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600">Lurpak</td><td style="padding:6px;text-align:center">38.5</td><td style="padding:6px;text-align:center">49.4</td><td style="padding:6px;text-align:center">52.1</td><td style="padding:6px;text-align:center">25.9</td><td style="padding:6px;text-align:center">16.7</td><td style="padding:6px;text-align:center">52.4</td><td style="padding:6px;text-align:center;font-weight:700;color:#7c5cbf">34.5</td></tr>
+        <tr><td style="padding:6px;font-weight:600">Arla</td><td style="padding:6px;text-align:center">32.9</td><td style="padding:6px;text-align:center">40.1</td><td style="padding:6px;text-align:center">41.7</td><td style="padding:6px;text-align:center">24.1</td><td style="padding:6px;text-align:center">16.5</td><td style="padding:6px;text-align:center">47.3</td><td style="padding:6px;text-align:center;font-weight:700;color:#7c5cbf">27.6</td></tr>
+      </table>
+      <p class="cite" style="margin-top:8px">Source: YouGov BrandIndex, Jan 2023–Dec 2024, Net Index score with monthly periodicity, n&gt;700. Published in YouGov's "Best Global Brands 2025" whitepaper (regional market deep-dive). Note: this specific published table is from a Nordic market deep-dive included in the same global report methodology YouGov applies to UK tracking — included here as the most granular dairy-brand-level BrandIndex data publicly available, demonstrating the metric structure YouGov would apply to a UK Lurpak/Arla tracking request.</p>
+    </div>
+    <div class="card" style="border-top:3px solid #7c5cbf">
+      <h4 style="color:#7c5cbf">UK Biggest Brand Movers — Tracking Methodology</h4>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">YouGov's UK Biggest Brand Movers report evaluates over 1,700 brands monitored in BrandIndex monthly, identifying which brands register statistically significant increases in consumer perception month-on-month across 13 metrics spanning media consumption, brand health and purchase funnel — including Buzz, Satisfaction, Recommend, Quality, Consideration, Purchase Intent and Current Customer. This is the live mechanism through which a dairy brand's media campaign impact on brand perception could be tracked and benchmarked against named competitors.</p>
+      <p class="cite">Source: YouGov, "UK Biggest Brand Movers" (October 2025 edition); YouGov BrandIndex metric documentation</p>
+    </div>
+
+    <p style="font-size:12px;color:var(--dim);margin-top:28px;max-width:760px">A note on scope: none of these organisations publish UK-dairy-specific programmatic channel spend by brand — that data is commercially licensed and not publicly disclosed. What's shown above is everything each organisation has made publicly available that is directly relevant: TTD's own platform research and UK regulatory guidance, Experian's identity and CPG audience product documentation, NIQ's UK dairy retail panel figures (largely surfaced via AHDB's public dairy market reporting, which licenses and republishes NIQ data), and YouGov's BrandIndex methodology and brand-level scores where publicly published. The Brand Comparator's channel mix estimates remain separately modelled and are not derived from these partner sources.</p>
+  </div>
+</div>
+
+<!-- ═══════════ PAGE: SOURCES ═══════════ -->
+<div class="page" id="page-sources">
+  <div class="wrap" style="padding-top:32px">
+    <div class="sh"><span class="sh-text">Data Sources & Methodology</span><span class="sh-line"></span></div>
+    <p style="font-size:13px;color:var(--muted);max-width:680px;margin-bottom:28px">All data in this dashboard is sourced from publicly available industry reports, trade press and company disclosures. Brand channel mix estimates are modelled composites — directionally accurate but not audited figures. No CPG company publicly discloses channel-level programmatic spend.</p>
+    <div class="sources-grid">
+      <div class="source-card" style="border-top:3px solid var(--teal)"><h4>🔑 Data Partner Direct Sources</h4><ul>
+        <li>The Trade Desk — "CPG Path to Purchase" (TTD Intelligence x PA Consulting, Nov 2024/Apr 2025)</li>
+        <li>The Trade Desk — "Untapped Opportunity of Omnichannel" (Oct 2024) — 1.5×/1.9×/2.2× benchmarks</li>
+        <li>The Trade Desk — "Omnichannel is powering new U.K. food regulations" (HFSS/LHF guidance)</li>
+        <li>Experian — Digital Graph + Marketing Attributes (Sept 2024); Data Marketplace launch (Jan 2025)</li>
+        <li>Experian — Marketing Forward Blog, CPG audience segment release notes (Aug 2025)</li>
+        <li>NIQ — Panel on Demand / Homescan POD, via AHDB Dairy Market Reviews 2024–2025</li>
+        <li>NIQ — "Private Label & Brand Growth: Global Outlook 2025" (17,000+ consumer survey)</li>
+        <li>YouGov — BrandIndex methodology; "Best Global Brands 2025"; "UK Biggest Brand Movers" (Oct 2025)</li>
+      </ul></div>
+      <div class="source-card"><h4>📺 TV & Broadcast</h4><ul>
+        <li>Thinkbox / Nielsen Ad Intel 2024 — FMCG linear TV spend £368.9m (+22%); largest category</li>
+        <li>Ofcom Media Nations 2025 — broadcast TV + VoD £5.3bn; VoD growth offsetting linear decline</li>
+        <li>MediaCat UK (April 2025) — TV ad spend +3.8% to £5.27bn; AVOD/FAST £236m (+146%)</li>
+      </ul></div>
+      <div class="source-card"><h4>📊 Digital Ad Market</h4><ul>
+        <li>AA/WARC Expenditure Report (Jan 2026) — total UK £46.9bn (+10.1%); digital ~86%</li>
+        <li>IAB UK Digital Adspend 2025 (March 2026) — social £11.5bn (+21%); retail media £3.8bn (+18%); DOOH £1.1bn</li>
+        <li>MEERKATworks (Feb 2026) — H1 2025 search £8.3bn (44%); video £4.3bn (23%); £45bn 2026 forecast</li>
+        <li>Media Performance UK (March 2026) — channel-by-channel 2025/26 breakdown</li>
+      </ul></div>
+      <div class="source-card"><h4>📺 CTV & Programmatic</h4><ul>
+        <li>IAB Digital Video Ad Spend & Strategy Report 2024/25 — 75% of CTV bought programmatically; CPG leading video growth</li>
+        <li>Silverpush (June 2024) — UK programmatic CTV +20.7%; pDOOH growing</li>
+        <li>eMarketer — UK leads Western Europe in programmatic; CTV trajectory</li>
+        <li>Mediaocean H2 2025 Report — CPG retail media +62%; CTV +55%</li>
+      </ul></div>
+      <div class="source-card"><h4>🎙️ Audio</h4><ul>
+        <li>Radiocentre / WARC / IAB "Speed of Sound" 2024 — £863.4m revenue by Q3 2024; +5.5%</li>
+        <li>IAB UK / AdTonos — UK podcast ad spend £90m (+8%); 44% connected audio reach weekly</li>
+        <li>eMarketer Programmatic Digital Audio Report (April 2025) — 30% of digital audio is programmatic</li>
+        <li>Hits Radio Advertising UK (Dec 2025) — 40m weekly commercial radio listeners</li>
+      </ul></div>
+      <div class="source-card"><h4>🏙️ OOH / DOOH</h4><ul>
+        <li>Route / PwC 2025 — UK OOH record £1.44bn; DOOH 67% of revenue</li>
+        <li>Media Performance UK 2026 — pDOOH 5% of OOH → 16% by 2027; ROI £1.60/£1</li>
+        <li>StackAdapt (Nov 2025) — in-store digital screens 55.9% of DOOH growth 2025–2029</li>
+      </ul></div>
+      <div class="source-card"><h4>🛒 Retail Media & Data</h4><ul>
+        <li>InfoSum case study — Nectar360 + Channel 4: up to 122% sales uplift; avg 29% across CPG partners</li>
+        <li>LiveRamp UK blog — Tesco TMI open model vs Boots BMG managed service comparison</li>
+        <li>Retail Tech Innovation Hub (July 2025) — Tesco + LiveRamp 13+ platform destinations</li>
+        <li>GroceryDoppio (Dec 2024) — Tesco + TTD (Sept 2024); Tesco + GroupM (June 2024)</li>
+        <li>ITV Press Centre — Matchmaker trial: Unilever, PepsiCo Walkers; 12+ FMCG brands</li>
+        <li>iProspect (June 2025) — Kellanova clean room: 1–2% media efficiency improvement</li>
+        <li>New Digital Age / Wavemaker (June 2024) — all offsite retail media campaigns exceeded benchmarks</li>
+        <li>KPMG UK (Sept 2025) — 62% of retail media buyers dissatisfied with measurement</li>
+      </ul></div>
+      <div class="source-card"><h4>🥛 Dairy Category</h4><ul>
+        <li>The Grocer Top Products 2024 — Biotiful +32.6% volumes; Actimel + Biotiful combined £18.6m value growth</li>
+        <li>The Grocer (Sept 2025) — M&A wave: Müller/Biotiful £100m+; Yeo Valley/The Collective; Arla–DMK</li>
+        <li>Dairy Reporter (April 2025) — kefir market growth; Biotiful acquisition context</li>
+        <li>dairyreporter.com (Dec 2024) — high-protein NPD: Arla Protein, Danone GetPRO, Müller protein range</li>
+      </ul></div>
+      <div class="source-card"><h4>🏢 Brand-Level Sources</h4><ul>
+        <li>The Trade Desk Case Study — "Danone Actimel: omnichannel vs multichannel" (Wavemaker partnership)</li>
+        <li>Campaign India (June 2022) — Wavemaker wins Danone global media account; £250m brand support pledge</li>
+        <li>The Drum (Nov 2025) — Unilever 50%+ to social/influencer; P&G $12.7bn global spend flat</li>
+        <li>The Grocer / Barclays (Nov 2024) — Nestlé marketing 8%→9% of sales; Reckitt "simpler, sharper"</li>
+      </ul></div>
+    </div>
+    <p style="font-size:12px;color:var(--dim);margin-top:24px;max-width:700px">Dashboard compiled June 2026. Brand channel mix profiles are modelled estimates based on publicly available information and category benchmarks — not audited spend data. Channel spend figures for dairy CPG specifically are modelled from broader FMCG sector data; no dairy-specific IAB breakdown exists. All estimates should be treated as directional intelligence.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+
+const CHANNELS = [
+  {id:'audio',   label:'Audio',       icon:'🎙️', color:'var(--audio)'  },
+  {id:'display', label:'Display',     icon:'🖥️', color:'var(--display)'},
+  {id:'olv',     label:'OLV',         icon:'📹', color:'var(--olv)'    },
+  {id:'ctv',     label:'CTV',         icon:'📺', color:'var(--ctv)'    },
+  {id:'dooh',    label:'DOOH',        icon:'🏙️', color:'var(--dooh)'   },
+];
+
+const OV = [
+  {id:'audio',   spend:'~£30–50m est.',   growth:'+8%',   bar:18,  label:'Habitual meal/commute occasions',  funnel:'awareness',   funnelPos:15},
+  {id:'display', spend:'~£80–120m est.',  growth:'+19%',  bar:55,  label:'Lapsed buyer & conquest targeting', funnel:'conversion',  funnelPos:80},
+  {id:'olv',     spend:'~£100–150m est.', growth:'+16%',  bar:68,  label:'Brand storytelling — incl. YouTube', funnel:'awareness',  funnelPos:25},
+  {id:'ctv',     spend:'~£60–90m est.',   growth:'+21%',  bar:44,  label:'HFSS alternative + retailer data',  funnel:'awareness',   funnelPos:30},
+  {id:'dooh',    spend:'~£40–70m est.',   growth:'+10%',  bar:28,  label:'Grocery proximity key',             funnel:'conversion',  funnelPos:75},
+];
+
+// Hex values for canvas (CSS vars don't work in canvas)
+const HEX = {
+  audio:'#0066b3', display:'#003868', olv:'#00aeef',
+  ctv:'#6dcff6',   dooh:'#2596d1',    retail:'#004f8c',
+};
+
+const PALETTE = ['#0066b3','#00aeef','#003868','#6dcff6','#2596d1','#004f8c','#7c5cbf','#b06820'];
+
+// ── BRAND DATABASE ────────────────────────────────────────────────
+// All profiles researched from public sources. Channels sum to 100.
+const BRANDS = {
+  'danone': {
+    brand:'Danone', parent:'Danone S.A.', tier:'Major', confidence:'high',
+    ch:{audio:9,display:27,olv:28,ctv:23,dooh:13},
+    channelNote:'Danone operates a mature programmatic stack via Wavemaker and The Trade Desk. Their documented A/B test on TTD for Actimel proved omnichannel outperforms siloed buying — now the global template. Strong OLV heritage from Activia and Actimel health campaigns; CTV growing rapidly particularly for post-HFSS reallocation of flavoured dairy budgets.',
+    retailData:'Active across Tesco TMI (Clubcard), Sainsbury\'s Nectar360 and Boots Advantage Card. Danone brands (Actimel, Activia) are natural fits for Boots health/pharmacy purchase signals. Documented use of Wavemaker\'s retail media offsite capabilities. TTD partnership enables Tesco Clubcard audience activation at scale across display, video and CTV.',
+    categoryNote:'Europe\'s largest dairy company in the UK; Activia, Actimel, Alpro, Volvic and Aptamil. Wavemaker named global media agency in 2022 following £250m brand support pledge. Recently under pressure on fresh dairy volumes but gut-health portfolio growing strongly.'
+  },
+  'actimel': {
+    brand:'Actimel (Danone)', parent:'Danone S.A.', tier:'Major', confidence:'high',
+    ch:{audio:11,display:25,olv:27,ctv:24,dooh:13},
+    channelNote:'Actimel\'s programmatic strategy is one of the most documented in UK dairy, specifically via the TTD case study showing omnichannel delivery outperforming siloed media. Health and immunity positioning suits wellness podcast adjacency (high audio allocation vs category average). CTV activation via ITV Matchmaker confirmed in trials.',
+    retailData:'Tesco Clubcard and Boots Advantage Card are primary data sources — the health/pharmacy purchase signal from Boots is particularly valuable for immunity-positioned products. Documented in ITV Matchmaker trial. Likely uses Nectar360 segments for Sainsbury\'s reach. Key audience: lapsed probiotic drink buyers and health-conscious household.',
+    categoryNote:'No.1 dairy immune-support drink in UK. Gut-health category leader alongside Biotiful. HFSS restrictions may affect if yoghurt drink formulations change; current drinks format may be outside scope.'
+  },
+  'activia': {
+    brand:'Activia (Danone)', parent:'Danone S.A.', tier:'Major', confidence:'high',
+    ch:{audio:10,display:26,olv:30,ctv:21,dooh:13},
+    channelNote:'Activia skews heavily toward OLV — the gut-health benefit story requires longer-form content to explain the science. YouTube education-format campaigns and recipe/wellness content integration on publisher sites are core. Audio is above-dairy-average given the breakfast/morning occasion fit. Display drives lapsed-buyer reactivation in a competitive yoghurt category.',
+    retailData:'Tesco Clubcard yoghurt buyer segments are the primary activation vehicle. Sainsbury\'s Nectar360 health-conscious shopper and regular yoghurt buyer segments are directly relevant. Boots Advantage Card health/wellness purchaser data supports the functional positioning. Key conquest target: regular yoghurt buyers buying own-label or Müller Corner.',
+    categoryNote:'Activia is Danone\'s largest yoghurt brand globally. UK market faces pressure from private label growth; the probiotic/gut-health claim is the key brand differentiator. HFSS restrictions may affect flavoured Activia varieties.'
+  },
+  'müller': {
+    brand:'Müller', parent:'Theo Müller Group', tier:'Major', confidence:'high',
+    ch:{audio:7,display:30,olv:24,ctv:23,dooh:16},
+    channelNote:'Müller operates a broad portfolio (Corner, Bliss, Light, Rice, Müller Milk, Quorn ownership) requiring channel diversity. Display is the workhorse for competitive conquest across yoghurt segments. Strong DOOH heritage around grocery shopping missions. CTV investment growing. Müller acquired Biotiful Dairy (£100m+, April 2025) adding a fast-growing challenger brand with very different media needs.',
+    retailData:'Tesco Clubcard and Nectar360 are primary data sources. Müller Corner targets own-label yoghurt switchers via basket data. Competitive conquest vs Danone/Activia and supermarket own-brand is a core use case. Family household data (children\'s yoghurt via Müller Corner Kids) via both Tesco and Sainsbury\'s loyalty card.',
+    categoryNote:'Largest yoghurt brand by volume in UK. Müller Milk is a top UK milk brand. 2025 acquisition of Biotiful Dairy adds a gut-health/kefir challenger brand to the portfolio — these brands will have meaningfully different media mixes under the same parent.'
+  },
+  'arla': {
+    brand:'Arla Foods', parent:'Arla Foods UK (co-op)', tier:'Major', confidence:'high',
+    ch:{audio:8,display:28,olv:25,ctv:20,dooh:19},
+    channelNote:'Arla is a co-operative with a broad dairy portfolio — Arla, Anchor, Lurpak, Cravendale, Lactofree, Arla Protein. DOOH investment is high relative to category peers, reflecting Lurpak\'s premium brand-building heritage and Anchor\'s strong food service presence. The Bovaer/Morrisons social media backlash in late 2024 required rapid crisis management and has increased Arla\'s investment in proactive social and owned media.',
+    retailData:'Active across Tesco, Sainsbury\'s and Ocado. Lurpak benefits from premium household data (Ocado/Waitrose shoppers); Cravendale targets milk brand switchers; Lactofree targets intolerance shoppers identifiable via pharmacy/health data from Boots. Arla Protein uses high-protein shopper and gym-goer segment data.',
+    categoryNote:'Third-largest UK dairy supplier. Announced merger with German DMK Group creating Europe\'s largest dairy co-operative. Portfolio covers milk, butter, cheese and yoghurt. Bovaer social media crisis in November 2024 was a significant PR event requiring media response investment.'
+  },
+  'lurpak': {
+    brand:'Lurpak (Arla)', parent:'Arla Foods UK', tier:'Major', confidence:'high',
+    ch:{audio:7,display:22,olv:25,ctv:22,dooh:24},
+    channelNote:'Lurpak has historically been one of the heaviest OOH investors in UK dairy — large-format outdoor creative is a signature of the brand. The 2022–23 cost-of-living crisis and "gold dust" moment (when Lurpak hit £9+ per block) drove significant earned media and prompted a brand reinvestment cycle. DOOH is therefore above-average. CTV and OLV support the premium brand narrative with premium inventory placement.',
+    retailData:'Tesco Clubcard premium food shopper segment is the primary audience. Butter/spread category data identifies own-label switchers (price-sensitive purchasers moving from Lurpak to Tesco Finest or Lidl butter). Ocado and Waitrose customer data via LiveRamp/Nectar is relevant for the premium household target.',
+    categoryNote:'The UK\'s most valuable dairy brand. Premium positioning has held despite price pressure. Plant-based Lurpak launched August 2024. The 2022 "gold dust" moment became cultural shorthand for food inflation and drove unprecedented brand salience.'
+  },
+  'yeo valley': {
+    brand:'Yeo Valley Organic', parent:'Yeo Valley Group (independent)', tier:'Challenger', confidence:'high',
+    ch:{audio:11,display:25,olv:30,ctv:16,dooh:18},
+    channelNote:'Yeo Valley blends heritage brand-building (famous for their country music TV ads) with digital-first challenger thinking. OLV carries the emotional brand narrative; audio resonates with the brand\'s food/provenance storytelling. CTV is below category average given cost vs reach trade-off for a mid-scale challenger. Organic and sustainability credentials drive strong performance in recipe and food content environments. Acquired The Collective in March 2025.',
+    retailData:'Tesco Clubcard organic food buyer and health-conscious shopper are the primary segments. Sainsbury\'s Nectar360 premium food and ethical shopper segments are highly relevant. Ocado is a disproportionately important retail partner given the premium/organic positioning — Ocado Audience Network via LiveRamp offers access to the exact household demographic Yeo Valley targets.',
+    categoryNote:'UK\'s leading organic dairy brand. Strong yoghurt and kefir credentials. 2025 acquisition of The Collective (premium fruit yoghurt, kefir) signals move up the value chain into functional dairy. Privately held; media investment is more focused and targeted than the major multinationals.'
+  },
+  'biotiful': {
+    brand:'Biotiful Gut Health', parent:'Müller (acquired April 2025, £100m+)', tier:'Challenger', confidence:'high',
+    ch:{audio:13,display:22,olv:38,ctv:10,dooh:17},
+    channelNote:'Biotiful was pre-acquisition a digital-first challenger with limited TV heritage. Its channel mix reflects this: OLV-heavy (Instagram Reels, TikTok, YouTube shorts) for the gut-health and kefir category education story, strong audio for wellness podcast adjacency, and cost-efficient pDOOH in urban markets near health food retailers. Minimal CTV — the CPM is prohibitive at challenger scale. Post-Müller acquisition, the mix may shift as parent company media buying power is applied.',
+    retailData:'Limited direct retail data access pre-Müller acquisition — challenger brands typically have less negotiating leverage for data partnerships. Primary retail data likely accessed via Tesco Clubcard\'s probiotic drink buyer and health-conscious shopper segments through Müller\'s existing retail media relationships. Boots Advantage Card health/pharmacy signal is particularly relevant given Biotiful\'s functional positioning.',
+    categoryNote:'UK kefir market leader alongside Yeo Valley. Founded 2012; grew volumes 32.6% in 2024. Acquired by Müller for £100m+ in April 2025 in a functional dairy land-grab. Now backed by Müller\'s distribution and media scale, which will meaningfully change the media mix available to the brand.'
+  },
+  'cravendale': {
+    brand:'Cravendale (Arla)', parent:'Arla Foods UK', tier:'Challenger', confidence:'high',
+    ch:{audio:9,display:30,olv:26,ctv:18,dooh:17},
+    channelNote:'Cravendale targets milk brand loyalists and category upgrades from standard own-label or value milk. Display is the core vehicle for targeting households buying standard milk who can be converted. Audio and OLV carry the "longer life" brand story in relevant contextual environments. DOOH near grocery stores supports the switching occasion.',
+    retailData:'Tesco Clubcard milk buyer data — specifically households buying value or own-label milk — is the primary conquest target. Volume milk purchase frequency data helps identify high-value household targets. Nectar360 premium food shopper segment is relevant for Cravendale\'s positioning as an upgrade. Lactofree dairy (also Arla) benefits from Boots Advantage Card intolerance-related purchase signals.',
+    categoryNote:'Premium filtered milk brand; known for longer shelf life. Competes against supermarket own-label for "upgrade" positioning. Part of Arla\'s UK portfolio alongside Anchor, Lurpak and Lactofree.'
+  },
+  'alpro': {
+    brand:'Alpro (Danone)', parent:'Danone S.A.', tier:'Major', confidence:'high',
+    ch:{audio:10,display:24,olv:34,ctv:18,dooh:14},
+    channelNote:'Alpro is Danone\'s plant-based dairy brand and operates almost entirely in digital-first environments. OLV dominates — short-form video on YouTube, Instagram and TikTok is the primary reach vehicle for the plant-based audience (skews younger and more urban). Audio benefits from wellness/sustainability podcast adjacency. CTV is below average as the plant-based audience is a lighter traditional TV viewer. HFSS rules are less relevant for Alpro\'s core products.',
+    retailData:'Tesco and Sainsbury\'s loyalty data used to identify plant-based dairy switchers and households buying both dairy and plant-based alternatives. The "switcher" audience — dairy buyers trialling plant-based — is identifiable from basket data. Boots Advantage Card health/dietary segment (lactose-free, dairy-free) is a relevant data source.',
+    categoryNote:'Europe\'s leading plant-based food and drink brand. The dairy/plant-based hybrid household is a growing segment — Alpro targets both committed vegans and flexitarians who switch between dairy and plant-based. Competes with Oatly, Oat-ly, Minor Figures and increasingly supermarket own-label.'
+  },
+  'oatly': {
+    brand:'Oatly', parent:'Oatly Group AB (public)', tier:'Challenger', confidence:'medium',
+    ch:{audio:12,display:20,olv:38,ctv:10,dooh:20},
+    channelNote:'Oatly is famous for its iconoclastic creative strategy — deliberately anti-corporate, heavy on environmental messaging, and digital-native in execution. OLV is the dominant channel given the brand\'s TikTok and Instagram presence. DOOH is disproportionately high as Oatly uses outdoor for culture-driven brand moments (especially London / major cities). CTV and Display are below average — Oatly\'s audience is younger and less likely to be found on traditional premium inventory.',
+    retailData:'Oatly\'s plant-based positioning means it primarily targets the oat milk / dairy-free segment. Tesco Clubcard plant-based dairy buyer data is the most relevant. Unlike dairy brands, Oatly has significant D2C awareness and social engagement which supplements retail data signals. Boots Advantage Card dairy-free/lactose-intolerant segment is relevant.',
+    categoryNote:'Swedish oat milk pioneer; most recognised plant-based dairy brand globally. Known for provocative advertising including the "F**k Oatly" campaign. Faces increasing competition from supermarket own-label oat milk which has significantly grown share. Listed on Nasdaq.'
+  },
+  'chobani': {
+    brand:'Chobani', parent:'Chobani LLC (US-founded)', tier:'Challenger', confidence:'medium',
+    ch:{audio:9,display:26,olv:33,ctv:14,dooh:18},
+    channelNote:'Chobani is a US market leader making a UK push as the Greek yoghurt category grows. As a challenger in the UK, the mix skews toward OLV and display over TV-heritage channels. The premium Greek yoghurt positioning suits recipe content adjacency and health/wellness OLV. DOOH near premium grocery (Waitrose, M&S Food, Ocado) is a key activation layer.',
+    retailData:'Ocado is disproportionately important for Chobani given the premium positioning — Ocado Audience Network via LiveRamp gives access to the premium household demographic. Sainsbury\'s and Tesco Greek yoghurt buyer segments are conquest targets. Boots Advantage Card high-protein/health-conscious shopper segment relevant for protein-enriched Chobani variants.',
+    categoryNote:'Market leader in US Greek yoghurt; growing UK presence. Competes with FAGE, Onken, and Yeo Valley in the premium yoghurt segment. High-protein credentials increasingly important as the category converges with the protein trend. Not HFSS-restricted given the plain yoghurt positioning.'
+  },
+  'the collective': {
+    brand:'The Collective', parent:'Yeo Valley Group (acquired March 2025)', tier:'Challenger', confidence:'medium',
+    ch:{audio:11,display:21,olv:37,ctv:10,dooh:21},
+    channelNote:'The Collective is a digitally-native challenger brand known for flavoured yoghurt pouches and functional dairy innovation. OLV and social video are the primary growth channels — the brand has a strong Instagram and TikTok presence. DOOH supports brand building in urban markets where the premium/functional positioning resonates. Since acquisition by Yeo Valley (March 2025), media resources may grow as parent scale applies.',
+    retailData:'Tesco and Sainsbury\'s flavoured yoghurt buyer and premium food shopper data are the primary retail data sources. The Collective\'s "need state" positioned yoghurt pouches (restore, kickstart, invigorate) benefit from health/wellness shopper segments. Ocado is relevant given the brand\'s premium positioning.',
+    categoryNote:'Premium flavoured and functional yoghurt brand. Known for kids pouches and adult kefir variants. Acquired by Yeo Valley from Epicurean Dairy in March 2025 as Yeo Valley moved up the value chain into functional dairy innovation.'
+  },
+  'onken': {
+    brand:'Onken (Emmi)', parent:'Emmi Group (Switzerland)', tier:'Challenger', confidence:'medium',
+    ch:{audio:8,display:29,olv:26,ctv:18,dooh:19},
+    channelNote:'Onken is a mid-tier yoghurt brand with strong set yoghurt heritage. Display is the core programmatic channel for competitive conquest in the chilled dairy aisle. DOOH supports grocery shopping missions. Limited CTV investment — the brand\'s scale doesn\'t justify premium CTV CPMs. OLV focused on recipe integration and food publisher adjacency.',
+    retailData:'Tesco Clubcard and Nectar360 set yoghurt and natural yoghurt buyer segments are the primary data sources. Competitive conquest vs Danone and own-label is the main use case. Health-conscious and cooking enthusiast segments relevant for Onken\'s natural/plain yoghurt positioning.',
+    categoryNote:'Swiss dairy brand with strong UK presence in set yoghurt. Owned by Emmi Group. Competes primarily in the natural and Greek-style yoghurt segment against Danone, Yeo Valley and supermarket own-label.'
+  },
+  'fage': {
+    brand:'FAGE', parent:'FAGE International SA', tier:'Challenger', confidence:'medium',
+    ch:{audio:8,display:27,olv:30,ctv:16,dooh:19},
+    channelNote:'FAGE Total Greek Yoghurt has built a premium positioning based on authentic Greek heritage and high protein content. OLV carries the brand story effectively; display drives conversion in a category with high switching. DOOH near premium grocers supports the upscale retail presence.',
+    retailData:'Tesco Clubcard Greek yoghurt buyer, Sainsbury\'s premium food shopper and Ocado audience data are all relevant. High-protein shopper segment is increasingly important given FAGE Total\'s protein credentials. Natural and plain yoghurt buyer data for competitive conquest vs Chobani, Yeo Valley and own-label.',
+    categoryNote:'Greek market leader in authentic strained yoghurt. Competes directly with Chobani, Yeo Valley and Danone Oikos in the premium Greek yoghurt segment. High-protein positioning increasingly important as the category converges with sports nutrition.'
+  },
+  'anchor': {
+    brand:'Anchor (Arla)', parent:'Arla Foods UK', tier:'Major', confidence:'high',
+    ch:{audio:7,display:26,olv:22,ctv:22,dooh:23},
+    channelNote:'Anchor is New Zealand butter\'s global brand — warm, family-oriented, with a strong food service heritage. DOOH is above average reflecting the brand\'s affinity with family shopping occasions near grocery stores. CTV and linear TV remain important for brand building. A squeezy Anchor variant launched May 2024 drove a digital campaign cycle.',
+    retailData:'Tesco Clubcard butter buyer and family household data are the primary segments. Competitive conquest vs Lurpak and own-label butter is the core use case — Anchor positions as a more accessible premium alternative. Family life-stage data (households with children) from both Tesco and Sainsbury\'s loyalty schemes is relevant.',
+    categoryNote:'Part of Arla\'s UK portfolio. New Zealand butter heritage with strong family positioning. Competes with Lurpak at premium and Clover/spreadable brands in the mainstream. Squeezy variant launch in May 2024 expanded the format portfolio.'
+  },
+  "rachel's organic": {
+    brand:"Rachel's Organic", parent:'Lactalis Group', tier:'Niche', confidence:'medium',
+    ch:{audio:10,display:24,olv:32,ctv:10,dooh:24},
+    channelNote:"Rachel's is a premium organic yoghurt brand with a loyal health/wellness audience. OLV and audio carry the organic provenance story most effectively. DOOH near health food retailers and premium supermarkets supports the brand. Very limited CTV investment — the CPM is prohibitive for a niche brand.",
+    retailData:"Waitrose and Ocado customer data via retail media are the most relevant — Rachel's Organic's consumer base skews premium and health-conscious, aligning with these retailer audiences. Tesco and Sainsbury's organic food buyer segments are usable but the brand's target is narrower than mass-market retailers' organic segments.",
+    categoryNote:'Premium organic yoghurt brand owned by Lactalis Group. Wales-based heritage. Targets health-conscious, premium shoppers. Competes in the organic dairy niche against Yeo Valley Organic.'
+  },
+  'müller corner': {
+    brand:'Müller Corner', parent:'Theo Müller Group', tier:'Major', confidence:'high',
+    ch:{audio:7,display:32,olv:23,ctv:22,dooh:16},
+    channelNote:'Müller Corner is a volume-driven mainstream yoghurt brand where display-led programmatic targeting of lapsed buyers and own-label switchers is the primary digital tactic. TV heritage is strong (Müller Corner has historically been a heavy TV advertiser) but HFSS restrictions affect the flavoured varieties. Display is the workhorse for conquest and reactivation at scale.',
+    retailData:'Tesco Clubcard and Nectar360 flavoured yoghurt buyer and own-label switcher data are the core activation audiences. Müller Corner specifically targets households who have switched from branded to own-label yoghurt — identifiable from basket data showing a brand-to-private-label switch event. Family household with children data is also highly relevant.',
+    categoryNote:'Müller Corner is one of the best-known yoghurt brands in the UK by volume. Faces sustained pressure from premium challengers and supermarket own-label in the flavoured yoghurt segment. HFSS restrictions affect pre-9pm linear TV — driving CTV and digital reallocation.'
+  },
+  'lactofree': {
+    brand:'Lactofree (Arla)', parent:'Arla Foods UK', tier:'Niche', confidence:'medium',
+    ch:{audio:10,display:28,olv:27,ctv:15,dooh:20},
+    channelNote:'Lactofree targets the lactose-intolerant segment — a specific health need identifiable from pharmacy and health product purchase data. Display and audio are effective for reaching this audience in health content environments. DOOH near pharmacy and health food retail is particularly relevant. CTV below average given the niche audience scale.',
+    retailData:'Boots Advantage Card is the single most valuable retail data source for Lactofree — pharmacy and digestive health product purchase signals identify the target consumer with high precision. Tesco Clubcard free-from shopper segment is also relevant. The lactose intolerance diagnosis journey means health content contextual targeting is effective alongside retail data.',
+    categoryNote:'Arla\'s lactose-free dairy range covering milk, yoghurt, cheese and cream. Part of the growing free-from category. Benefiting from increased diagnosis and awareness of lactose intolerance in UK consumer population.'
+  },
+};
+
+// Category-inference tiers for unknown brands
+function inferBrand(name) {
+  const lower = name.toLowerCase();
+  // Simple keyword inference
+  const isPlantBased = /oat|almond|soy|plant|vegan|oatly|minor|silk|califia/.test(lower);
+  const isKefir      = /kefir|probiotic|bifidus|gut|ferment/.test(lower);
+  const isOrganic    = /organic|biodynamic/.test(lower);
+  const isCheese     = /cheddar|cheese|brie|camembert|stilton|gouda|edam/.test(lower);
+  const isButter     = /butter|spread|margarine/.test(lower);
+  const isMilk       = /milk|cream/.test(lower);
+
+  let ch, note, retailNote, catNote;
+
+  if (isPlantBased) {
+    ch = {audio:11,display:21,olv:38,ctv:10,dooh:20};
+    note = `${name} appears to be a plant-based dairy alternative. Plant-based dairy brands are digitally-native with OLV-heavy strategies — particularly short-form social video on TikTok and Instagram targeting Millennial/Gen Z audiences and flexitarians. DOOH in urban markets is typical. CTV is below average given the younger, lighter TV audience.`;
+    retailNote = `Tesco Clubcard and Sainsbury's Nectar360 plant-based shopper data most relevant. Ocado Audience Network valuable if ${name} has premium positioning. Boots dairy-free / intolerance segment is a useful signal for reaching the target consumer.`;
+    catNote = `Plant-based dairy alternative brand. Competing in the fast-growing oat milk, nut milk or plant-based yoghurt segment. Facing increasing competition from supermarket own-label.`;
+  } else if (isKefir) {
+    ch = {audio:13,display:22,olv:37,ctv:11,dooh:17};
+    note = `${name} is positioned in the kefir/gut health space — a fast-growing category (double-digit volume growth in UK 2024). OLV is the primary vehicle for category education and brand building. Audio suits wellness podcast adjacency. CTV is below average at challenger scale.`;
+    retailNote = `Tesco Clubcard probiotic drink buyer and health-conscious shopper segments are the most relevant. Boots Advantage Card health/pharmacy purchase signals are especially valuable for functional dairy brands.`;
+    catNote = `UK kefir market in strong growth driven by gut health awareness. Category leaders include Biotiful (acquired by Müller) and Yeo Valley. Subject to the same gut-health tailwind as Actimel and Activia.`;
+  } else if (isOrganic) {
+    ch = {audio:10,display:24,olv:31,ctv:12,dooh:23};
+    note = `${name}'s organic positioning suggests a premium, health-conscious target audience. OLV and audio carry provenance stories effectively. DOOH near premium supermarkets and health food retail is high value. CTV relatively modest given the niche audience.`;
+    retailNote = `Waitrose and Ocado customer data are most relevant for organic dairy. Tesco and Sainsbury's organic food buyer segments are broader but usable. Premium food shopper and health-conscious segments across all major retailers.`;
+    catNote = `Organic dairy brand competing in a premium segment with strong consumer loyalty but limited scale vs conventional dairy. Organic dairy has been under volume pressure from cost-of-living but holding in value terms.`;
+  } else if (isCheese) {
+    ch = {audio:7,display:28,olv:23,ctv:20,dooh:22};
+    note = `${name} appears to be a cheese brand. Cheese is a lower-involvement category with strong retail media performance. Display drives conquest of own-label switchers. DOOH near grocery stores is an important channel for impulse purchase moments. CTV is above-average if premium positioning.`;
+    retailNote = `Tesco Clubcard and Nectar360 cheese buyer data — frequency, price point, brand vs own-label — are the primary activation vehicles. Competitive conquest of value tier cheese buyers is the core use case.`;
+    catNote = `UK cheese is a large, competitive category with significant own-label pressure. Branded cheese (Cathedral City, Davidstow, Pilgrims Choice) competes on convenience and quality signals.`;
+  } else if (isButter || isPlantBased) {
+    ch = {audio:7,display:26,olv:22,ctv:22,dooh:23};
+    note = `${name} is in the butter/spread category, which has strong DOOH heritage and display-led conquest strategies. CTV is used for brand building, particularly post-watershed where HFSS concerns are lower. Premium butter brands invest more in OLV for brand storytelling.`;
+    retailNote = `Tesco Clubcard butter buyer data — including brand-to-own-label switchers — is the primary audience. Nectar360 premium food shopper data relevant for premium positioning.`;
+    catNote = `Butter/spread category faces significant own-label competition especially post-cost-of-living crisis (Lurpak reaching £9+ per block in 2023 drove substantial switching). Brand recovery requires consistent media investment.`;
+  } else {
+    // Generic dairy challenger fallback
+    ch = {audio:9,display:26,olv:30,ctv:14,dooh:21};
+    note = `${name} doesn't match a pre-profiled brand. This is a category-average estimate for a UK dairy challenger brand based on similar size and positioning. Estimates assume: digital-first media mix; limited TV heritage; OLV and display as primary channels; pDOOH in key urban markets.`;
+    retailNote = `As an unrecognised brand, this estimate assumes access to standard UK retailer data products (Tesco dunnhumby offsite, Nectar360 segments) based on typical challenger brand retail data relationships. Add the specific brand name for a more accurate profile.`;
+    catNote = `Estimated profile for an unknown UK dairy brand. If this is a real brand you're researching, the actual profile may differ significantly from this estimate. For the most accurate comparison, use one of the pre-profiled brands from the quick-add list.`;
+  }
+
+  return {
+    brand: name, parent: 'Unknown / unrecognised', tier: 'Unknown',
+    confidence: 'low', channels: ch,
+    channelNote: note, retailData: retailNote, categoryNote: catNote
+  };
+}
+
+function getBrand(name) {
+  const key = name.toLowerCase().trim();
+  // Direct match
+  if (BRANDS[key]) return BRANDS[key];
+  // Partial match - check if any DB key contains the input or vice versa
+  const partial = Object.keys(BRANDS).find(k => k.includes(key) || key.includes(k));
+  if (partial) return BRANDS[partial];
+  // Inference
+  return inferBrand(name);
+}
+
+// ── UI ────────────────────────────────────────────────────────────
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+  document.querySelector(`.nav-link[onclick*="${id}"]`).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function buildOvRows() {
+  const cont = document.getElementById('ovRows');
+  OV.forEach(item => {
+    const ch = CHANNELS.find(c => c.id === item.id) || {};
+    const color = ch.color || 'var(--olv)';
+    const icon  = ch.icon  || '';
+    const label = ch.label || item.id;
+    const funnelLabel = item.funnel === 'awareness' ? 'Awareness-led' : 'Conversion-led';
+    const funnelColor = item.funnel === 'awareness' ? '#0066b3' : '#003868';
+
+    const row = document.createElement('div');
+    row.className = 'ov-row';
+    row.onclick = () => { showPage('channels'); selectChannel(item.id); };
+
+    row.innerHTML = `
+      <div class="ov-name" style="color:${color}">${icon} ${label}</div>
+      <div class="ov-track">
+        <div class="ov-fill" style="width:${item.bar}%;background:${color}">
+          ${item.bar > 35 ? item.spend : ''}
+        </div>
+      </div>
+      <div class="ov-right">
+        <div class="ov-growth" style="color:var(--teal)">${item.growth}</div>
+        <div class="ov-note">${item.bar <= 35 ? item.spend : item.label}</div>
+      </div>
+      <div class="ov-funnel">
+        <div class="ov-funnel-track">
+          <div class="ov-funnel-dot" style="left:${item.funnelPos}%;background:${funnelColor}"></div>
+        </div>
+        <div class="ov-funnel-label" style="color:${funnelColor}">${funnelLabel}</div>
+      </div>`;
+    cont.appendChild(row);
+  });
+}
+
+function buildChPills() {
+  const cont = document.getElementById('chPills');
+  CHANNELS.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'ch-pill'; btn.dataset.ch = ch.id;
+    btn.textContent = `${ch.icon} ${ch.label}`;
+    btn.onclick = () => selectChannel(ch.id);
+    cont.appendChild(btn);
+  });
+}
+
+function selectChannel(id) {
+  document.querySelectorAll('.ch-pill').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.ch-panel').forEach(p => { p.classList.remove('active'); p.style.display = 'none'; });
+  const btn = document.querySelector(`.ch-pill[data-ch="${id}"]`);
+  if (btn) btn.classList.add('active');
+  const panel = document.getElementById(`ch-${id}`);
+  if (panel) { panel.classList.add('active'); panel.style.display = 'grid'; }
+}
+
+function buildQuickPills() {
+  const list = ['Danone','Actimel','Activia','Müller','Arla','Lurpak','Yeo Valley','Biotiful','Cravendale','Alpro','Oatly','Chobani','The Collective','Onken','FAGE','Anchor','Lactofree',"Rachel's Organic",'Müller Corner'];
+  const cont = document.getElementById('qpills');
+  list.forEach(b => {
+    const pill = document.createElement('button');
+    pill.className = 'qpill'; pill.textContent = b;
+    pill.onclick = () => { document.getElementById('brandInput').value = b; addBrand(); };
+    cont.appendChild(pill);
+  });
+}
+
+// ── BRAND COMPARATOR ─────────────────────────────────────────────
+
+let activeBrands = [];
+
+function addBrand() {
+  const input = document.getElementById('brandInput');
+  const name = input.value.trim();
+  if (!name) { toast('Please enter a brand name'); return; }
+  if (activeBrands.find(b => b.name.toLowerCase() === name.toLowerCase())) { toast(`"${name}" already added`); return; }
+  if (activeBrands.length >= 5) { toast('Maximum 5 brands — remove one first'); return; }
+
+  const data = getBrand(name);
+  activeBrands.push({ name: data.brand || name, data, color: PALETTE[activeBrands.length % PALETTE.length] });
+  input.value = '';
+  renderBrands();
+  toast(`"${data.brand || name}" added ✓`);
+}
+
+function removeBrand(name) {
+  activeBrands = activeBrands.filter(b => b.name !== name);
+  renderBrands();
+}
+
+function renderBrands() {
+  const main = document.getElementById('brandCards');
+  const empty = document.getElementById('emptyState');
+  const radar = document.getElementById('radarCard');
+  main.innerHTML = '';
+
+  const emptyEl = document.getElementById('emptyState');
+  if (activeBrands.length === 0) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    radar.style.display = 'none';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  radar.style.display = 'block';
+  drawRadar();
+
+  activeBrands.forEach(({ name, data, color }) => {
+    const ch = data.ch || {};
+    const keys = ['audio','display','olv','ctv','dooh'];
+    const total = keys.reduce((s, k) => s + (ch[k] || 0), 0) || 100;
+    const norm = {};
+    keys.forEach(k => norm[k] = Math.round((ch[k] || 0) / total * 100));
+
+    const tierColors = { Major:'#003868', Challenger:'#0066b3', Niche:'#00aeef', Unknown:'#5b7690' };
+    const tierColor = tierColors[data.tier] || tierColors.Unknown;
+    const confClass = { high:'conf-high', medium:'conf-med', low:'conf-low' }[data.confidence] || 'conf-med';
+
+    const card = document.createElement('div');
+    card.className = 'brand-card';
+    card.innerHTML = `
+      <div class="brand-card-head">
+        <div class="brand-card-name">
+          <div class="bdot" style="background:${color}"></div>
+          ${data.brand || name}
+          ${data.tier && data.tier !== 'Unknown' ? `<span class="btag" style="background:${tierColor}18;color:${tierColor}">${data.tier}</span>` : ''}
+          <span class="conf-badge ${confClass}">${data.confidence} confidence</span>
+        </div>
+        <button class="brand-rm" onclick="removeBrand('${name.replace(/'/g,"\\'")}')">×</button>
+      </div>
+      <div class="brand-body">
+        <div class="brand-body-left">
+          ${data.parent ? `<div class="parent-note">Part of ${data.parent}</div>` : ''}
+          <div class="b-bars">
+            ${keys.map(k => {
+              const ch2 = CHANNELS.find(c => c.id === k);
+              return `<div class="b-row">
+                <div class="b-lbl">${ch2.icon} ${ch2.label}</div>
+                <div class="b-track"><div class="b-fill" style="width:${norm[k]}%;background:${color}"></div></div>
+                <div class="b-pct" style="color:${color}">${norm[k]}%</div>
+              </div>`;
+            }).join('')}
+          </div>
+          ${data.categoryNote ? `<div class="brand-note">${data.categoryNote}</div>` : ''}
+        </div>
+        <div class="brand-body-right">
+          ${data.channelNote ? `<div class="brand-note">${data.channelNote}</div>` : ''}
+          ${data.retailData ? `<div class="brand-retail"><strong>🛒 Retail Data Strategy</strong>${data.retailData}</div>` : ''}
+        </div>
+      </div>`;
+    main.appendChild(card);
+  });
+}
+
+// ── RADAR ─────────────────────────────────────────────────────────
+
+function drawRadar() {
+  const canvas = document.getElementById('radarCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height, cx = W/2, cy = H/2;
+  const R = Math.min(W,H)/2 - 38;
+  const labels = CHANNELS;
+  const N = labels.length;
+  const angles = labels.map((_,i) => (2*Math.PI*i/N) - Math.PI/2);
+
+  ctx.clearRect(0,0,W,H);
+
+  // grid
+  [0.25,0.5,0.75,1].forEach(r => {
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(0,56,104,0.08)'; ctx.lineWidth = 1;
+    angles.forEach((a,i) => { const x=cx+Math.cos(a)*R*r, y=cy+Math.sin(a)*R*r; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+    ctx.closePath(); ctx.stroke();
+  });
+  angles.forEach(a => {
+    ctx.beginPath(); ctx.strokeStyle='rgba(0,56,104,0.12)'; ctx.lineWidth=1;
+    ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*R, cy+Math.sin(a)*R); ctx.stroke();
+  });
+
+  // labels
+  ctx.fillStyle='#7a6e5c'; ctx.font='12px DM Sans,sans-serif'; ctx.textAlign='center';
+  labels.forEach((ch,i) => {
+    const a=angles[i], lx=cx+Math.cos(a)*(R+20), ly=cy+Math.sin(a)*(R+20);
+    ctx.fillText(`${ch.icon} ${ch.label}`, lx, ly+4);
+  });
+
+  // polygons
+  const max = 42;
+  activeBrands.forEach(({data,color}) => {
+    const ch = data.ch || {};
+    const keys = labels.map(l=>l.id);
+    const total = keys.reduce((s,k)=>s+(ch[k]||0),0)||100;
+    ctx.beginPath();
+    labels.forEach((c,i) => {
+      const val = Math.min((ch[c.id]||0)/total*100/max, 1);
+      const x=cx+Math.cos(angles[i])*R*val, y=cy+Math.sin(angles[i])*R*val;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.globalAlpha=0.15; ctx.fillStyle=color; ctx.fill();
+    ctx.globalAlpha=1; ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
+    labels.forEach((c,i) => {
+      const val=Math.min((ch[c.id]||0)/total*100/max,1);
+      const x=cx+Math.cos(angles[i])*R*val, y=cy+Math.sin(angles[i])*R*val;
+      ctx.beginPath(); ctx.arc(x,y,4,0,2*Math.PI); ctx.fillStyle=color; ctx.globalAlpha=1; ctx.fill();
+    });
+  });
+
+  // legend
+  const leg = document.getElementById('radarLegend');
+  if (leg) {
+    leg.innerHTML = activeBrands.map(b =>
+      `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)">
+        <div style="width:10px;height:10px;border-radius:50%;background:${b.color}"></div>${b.name}
+      </div>`
+    ).join('');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── ENTER KEY ─────────────────────────────────────────────────────
+document.getElementById('brandInput').addEventListener('keydown', e => { if(e.key==='Enter') addBrand(); });
+
+// ── CHANNEL PLACEHOLDER FIX ───────────────────────────────────────
+// Make sure placeholder shows on channel page before selection
+document.getElementById('ch-placeholder').style.display = 'block';
+
+// ── INIT ─────────────────────────────────────────────────────────
+function injectFunnelBadges() {
+  OV.forEach(item => {
+    const panel = document.getElementById(`ch-${item.id}`);
+    if (!panel) return;
+    const kpis = panel.querySelector('.ch-kpis');
+    if (!kpis) return;
+    const funnelLabel = item.funnel === 'awareness' ? 'Awareness-led' : 'Conversion-led';
+    const funnelColor = item.funnel === 'awareness' ? '#0066b3' : '#003868';
+    const funnelDesc = item.funnel === 'awareness'
+      ? 'Builds brand familiarity and reach — typically upper-funnel'
+      : 'Drives action near the point of purchase decision';
+    const badge = document.createElement('div');
+    badge.style.cssText = 'flex-basis:100%;margin-top:10px;display:flex;align-items:center;gap:10px;';
+    badge.innerHTML = `
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;padding:3px 10px;border-radius:20px;color:#fff;background:${funnelColor}">${funnelLabel}</span>
+      <span style="font-size:11px;color:var(--muted)">${funnelDesc}</span>
+      <div style="flex:1;max-width:140px;position:relative;height:5px;border-radius:3px;background:linear-gradient(90deg,#0066b3 0%,#003868 100%)">
+        <div style="position:absolute;top:50%;left:${item.funnelPos}%;width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.25);transform:translate(-50%,-50%);background:${funnelColor}"></div>
+      </div>`;
+    kpis.appendChild(badge);
+  });
+}
+
+buildOvRows();
+buildChPills();
+buildQuickPills();
+injectFunnelBadges();
+</script>
+</body>
+</html>
